@@ -1,35 +1,31 @@
 package org.arbusta
 
-class HitTypeController {
+class AMTController {
 
-  def amtService
+    def index() {
+        def soap = request.XML
+        println "Initiating XML Parsing"
 
-  //def scaffold = HitType
-  def index() {
-    def soap = request.XML
+        //Check contains Body
+        if(!soap.children().collect { it.name() }.contains("Body"))
+            throw new Exception("Body not contained");
 
-    println "Initiating XML Parsing"
+        println "Body detected"
 
-    //Check contains Body
-    if(!soap.children().collect { it.name() }.contains("Body"))
-      throw new Exception("Body not contained");
+        def body = soap.Body
 
-    println "Body detected"
+        // Look for operations to execute
+        body.children().each { operation ->
+            def operationName = operation.name()
+            println "Operation: ${operationName}, parsing Request tag"
+            def requestData = hashBuilder(operation.Request)
 
-    def body = soap.Body
+            // call operationName method
+            def responseData = this."$operationName"(requestData)
 
-    // Look for operations to execute
-    body.children().each { operation ->
-      def operationName = operation.name()
-      println "Operation: ${operationName}, parsing Request tag"
-      def requestData = hashBuilder(operation.Request)
-
-      // call operationName action
-      def responseData = this."$operationName"(requestData)
-
+        }
+        render "OK"
     }
-    render "OK"
-  }
 
   def CreateHIT(def req) {
     println "CreateHIT method called"
@@ -41,18 +37,17 @@ class HitTypeController {
     println "QualificationRequirement: ${req.QualificationRequirement}"
   }
 
-
   def hashBuilder(def xml) {
 	  def ret = [:]
 	  xml.children().each { child ->
 		  def name = child.name()
-		  def value 
+		  def value
 
 		  if(child.children().size() == 0)
 			  value = child.text();
 		  else
 			  value = hashBuilder(child);
-		
+
 		  if(ret[name] != null) {
 			  if(ret[name] instanceof java.util.ArrayList) {
 				  ret[name].add(value)
@@ -65,7 +60,6 @@ class HitTypeController {
 		  } else {
 			  ret[name] = value
 		  }
-
 	  }
 	  return ret;
   }
