@@ -34,14 +34,15 @@ class AMTOperationsService {
 
     def CreateQualificationType(request) {
         //TODO Use Actual Parameters in the request
-        def q = new QualificationType(title: "Idioma Ingles", description: "Conocer el idioma ingles", keywords: "ingles, idioma", creationTime: new java.sql.Timestamp(System.currentTimeMillis()),
-                qualificationTypeStatus: "Active", retryDelayInSeconds: 24L*7*3600, testDurationInSeconds:3600L)
+
+
+        def q = new QualificationType(name: request.Name, description: request.Description, keywords: request.Keywords,
+                creationTime: new java.sql.Timestamp(System.currentTimeMillis()),
+                qualificationTypeStatus: "Active", retryDelayInSeconds: request.RetryDelayInSeconds,
+                test: request.Test, answerKey: request.AnswerKey,
+                testDurationInSeconds:request.TestDurationInSeconds)
 
         q.save()
-
-        q.errors.each {
-            println it
-        }
 
         return q
     }
