@@ -1,6 +1,11 @@
 package org.arbusta
 
+
+import org.arbusta.services.*
+
 class AMTController {
+
+    AMTOperationsService AMTOperationsService
 
     def index() {
         def soap = request.XML
@@ -21,7 +26,7 @@ class AMTController {
             def requestData = hashBuilder(operation.Request)
 
             // call operationName method
-            def responseData = this."$operationName"(requestData)
+            def responseData = AMTOperationsService."$operationName"(requestData)
 
         }
         render "OK"

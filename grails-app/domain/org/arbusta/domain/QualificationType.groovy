@@ -2,10 +2,10 @@ package org.arbusta.domain
 
 import java.sql.Timestamp
 
-class Qualification {
+class QualificationType {
     /**
-     * TODO Add:- Qualification Masters - Reserved qualification IDs
-     * TODO Add:- Locale Qualification
+     * TODO Add:- QualificationType Masters - Reserved qualification IDs
+     * TODO Add:- Locale QualificationType
      * TODO Add:- Adult Content
      */
 
