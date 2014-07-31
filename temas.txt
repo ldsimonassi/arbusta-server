@@ -1,0 +1,117 @@
+
+1) Ver Job de search
+	1.1) Buscar mail: OK
+		Matias Fraboschi 
+		Alex Aronson
+
+	1.2) Hacer andar los repos. OK
+
+	1.3) Investigar inyección de service y el método createHit.OK
+
+	1.4) Buscar punto de entrada de corrida del job y seguirlo.
+		Picture Uploader Job. OK
+
+
+MechanicalTurkPicturesUploaderJob
+	picturesService
+	pictureHitUploaderService
+        picturesLayoutId = 3EJQGIC4QUUZO68WJK1IZZQD4IO8HN
+        totalPicturesPerHit = 23
+        service = new RequesterService(new PropertiesClientConfig(application.config.mTurkPropertiesPath))
+        maxBudgetFile =  application.config.maxBudgetFile
+                controlPictureService=ref('controlPictureService')
+                mailUtilService = ref('mailUtilService')
+                account = new Account(new RequesterService(new PropertiesClientConfig(application.config.mTurkPropertiesPath)))
+                budget = new Budget(application.config.maxBudgetFile)
+                numAssignments = application.config.mturk.picturesAssignmentsNumber
+
+
+picture:
+	pictureId: "8206-MLA20001808766_112013", 
+	url: "http://mla-s2-p.mlstatic.com/8206-MLA20001808766_112013-Y.jpg", 
+	status: "P", 
+	insertDate: new Date()
+
+			- Cuantas asignaciones tiene la tarea?
+			- Ver documentación del método createHit usado.
+			- Tratar de entender los valores involucrados.
+
+
+
+		Picture Downloader Job. PENDING
+
+		WTF Uploader Job
+		WTF Downloader JOB
+
+
+
+
+		Qualifications
+		HITs
+	
+	1.5) Hacer un sandbox con la cuenta de ML.
+
+	1.6) Mirar en la cuenta de ML las tareas que hay y como se componen.
+
+	1.7) Obtener la lista de method calls
+
+	1.8) Mirar los tests.
+
+
+{
+    "ModerationQA": {
+        "Community Filtering" : 0.0,
+        "Sample": 0.0,
+        "Mantika": 20.0,
+        "Price Rules": 0.0
+    },
+    "Manual Moderation": {
+        "Price Rules": 0.0,
+        "Mantika": 120.0
+    },
+    "Pictures Moderation": {
+        "Mechanical Turk":150.0
+    },
+    "default": 0.0
+}
+
+
+
+
+def public 
+	create(hitTitle,description,reward,numAssignments,keywords,layoutId,reqs,parameters){
+
+}
+
+
+
+
+MechanicalTurkDownloaderJob.groovy
+MechanicalTurkUploaderJob.groovy
+
+MechanicalTurkQADownloaderJob.groovy
+MechanicalTurkQAUploaderJob.groovy
+
+
+
+
+MechanicalTurkPicturesUploaderJob.groovy
+
+
+Service creation: 
+
+service = new RequesterService(new PropertiesClientConfig(application.config.mTurkPropertiesPath))
+
+hitTitle = "Are these pictures OK?";
+description = "Your job is to REJECT pictures that don't meet the specified criteria.";pprovalRateNum = 70
+    static final Integer approvedHits = 500
+    static final String keywords = "photo, review, quality , moderation, mercadolibre"
+
+	getPicturesPendingToCheck()
+	Iterate
+		createHitForLayout()
+
+
+MechanicalTurkPicturesDownloaderJob.groovy
+
+
