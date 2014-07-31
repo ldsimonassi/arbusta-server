@@ -3107,27 +3107,23 @@
          <ns:Credential>?</ns:Credential>
          <!--Zero or more repetitions:-->
          <ns:Request>
-            <ns:Name>?</ns:Name>
+            <ns:Name>Conocimientos de ingles</ns:Name>
             <!--Optional:-->
-            <ns:Keywords>?</ns:Keywords>
+            <ns:Keywords>ingles,idioma,lenguaje</ns:Keywords>
             <!--Optional:-->
-            <ns:Description>?</ns:Description>
+            <ns:Description>Saber escribir y escuchar en idioma ingles</ns:Description>
             <!--Optional:-->
-            <ns:QualificationTypeStatus>?</ns:QualificationTypeStatus>
+            <ns:QualificationTypeStatus>Active</ns:QualificationTypeStatus>
             <!--Optional:-->
-            <ns:RetryDelayInSeconds>?</ns:RetryDelayInSeconds>
+            <ns:RetryDelayInSeconds>604800</ns:RetryDelayInSeconds>
             <!--Optional:-->
-            <ns:Test>?</ns:Test>
+            <ns:Test>The cat is under the table</ns:Test>
             <!--Optional:-->
-            <ns:AnswerKey>?</ns:AnswerKey>
+            <ns:AnswerKey>No</ns:AnswerKey>
             <!--Optional:-->
-            <ns:TestDurationInSeconds>?</ns:TestDurationInSeconds>
+            <ns:TestDurationInSeconds>3600</ns:TestDurationInSeconds>
             <!--Optional:-->
-            <ns:AutoGranted>?</ns:AutoGranted>
-            <!--Optional:-->
-            <ns:AutoGrantedValue>?</ns:AutoGrantedValue>
-            <!--Zero or more repetitions:-->
-            <ns:ResponseGroup>?</ns:ResponseGroup>
+            <ns:AutoGranted>false</ns:AutoGranted>
          </ns:Request>
       </ns:CreateQualificationType>
    </soapenv:Body>

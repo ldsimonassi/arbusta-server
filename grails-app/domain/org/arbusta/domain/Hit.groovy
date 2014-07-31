@@ -1,4 +1,4 @@
-package arbusta.server
+package org.arbusta.domain
 
 class Hit {
     HitType hitType

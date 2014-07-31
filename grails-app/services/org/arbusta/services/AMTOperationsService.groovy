@@ -4,6 +4,7 @@ import org.arbusta.domain.QualificationType
 import org.arbusta.domain.QualificationRequirement
 import org.arbusta.domain.HitType
 import grails.transaction.Transactional
+import grails.validation.ValidationException
 
 @Transactional
 class AMTOperationsService {
@@ -33,17 +34,26 @@ class AMTOperationsService {
     }
 
     def CreateQualificationType(request) {
-        //TODO Use Actual Parameters in the request
-
-
-        def q = new QualificationType(name: request.Name, description: request.Description, keywords: request.Keywords,
-                creationTime: new java.sql.Timestamp(System.currentTimeMillis()),
-                qualificationTypeStatus: "Active", retryDelayInSeconds: request.RetryDelayInSeconds,
+        def q = new QualificationType(
+                name: request.Name, description: request.Description,
+                keywords: request.Keywords, creationTime: new java.sql.Timestamp(System.currentTimeMillis()),
+                retryDelayInSeconds: request.RetryDelayInSeconds,
+                qualificationTypeStatus: request.QualificationTypeStatus,
                 test: request.Test, answerKey: request.AnswerKey,
                 testDurationInSeconds:request.TestDurationInSeconds)
 
         q.save()
 
-        return q
+        if(q.hasErrors()) throw new ValidationException(q.errors)
+
+        def ret = [:]
+        ret.QualificationType = [:]
+        ret.QualificationType.QualificationTypeId = q.id
+        ret.QualificationType.CreationTime = q.creationTime
+        ret.QualificationType.Name = q.name
+        ret.QualificationType.Description = q.description
+        ret.QualificationType.QualificationTypeStatus = q.qualificationTypeStatus
+        ret.QualificationType.AutoGranted = q.autoGranted
+        return ret
     }
 }

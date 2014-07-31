@@ -19,6 +19,8 @@ class AMTController {
 
         def body = soap.Body
 
+
+        def responses = []
         // Look for operations to execute
         body.children().each { operation ->
             def operationName = operation.name()
@@ -26,10 +28,11 @@ class AMTController {
             def requestData = hashBuilder(operation.Request)
 
             // call operationName method
-            def responseData = AMTOperationsService."$operationName"(requestData)
-
+            def individualResponse = AMTOperationsService."$operationName"(requestData)
+            responses.add(individualResponse)
+            println individualResponse
         }
-        render "OK"
+        render responses.toString()
     }
 
   def CreateHIT(def req) {

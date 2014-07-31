@@ -19,8 +19,8 @@ class QualificationType {
     Integer testDurationInSeconds
     String answerKey
     boolean autoGranted
-    Integer autoGrantedValue = 1
     boolean isRequestable = true
+    Integer autoGrantedValue = 1
 
     static hasMany = [ requirements : QualificationRequirement]
 
@@ -36,6 +36,7 @@ class QualificationType {
         answerKey(nullable: true, size: 0..65535)
         autoGranted(nullable: true)
         autoGrantedValue(nullable: true)
+        isRequestable(nullable: false)
     }
 
     static mapping = {
