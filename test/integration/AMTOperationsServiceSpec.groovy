@@ -1,8 +1,8 @@
-import spock.lang.Specification
 import spock.lang.*
 import org.arbusta.services.AMTOperationsService
+import org.arbusta.domain.*
 
-class AMTOperationsServiceSpec extends Specification {
+class AMTOperationsServiceSpec extends AbstractSpec {
 
     //Fields
     def AMTOperationsService
@@ -35,4 +35,46 @@ class AMTOperationsServiceSpec extends Specification {
             assert response.QualificationType.AutoGranted.toString() == request.AutoGranted
     }
 
+    def "domain object should not be persisted between tests" () {
+        when:
+            def qt = QualificationType.findById(1)
+        then:
+            assert qt == null
+    }
+
+
+    def "register hit type with simple qualification requirement" () {
+        setup:
+            def qt = createQualificationType()
+            def request = [:]
+            request.AutoApprovalDelayInSeconds = "604800"
+            request.AssignmentDurationInSeconds = "3600"
+            request.Reward = [:]
+            request.Reward.Amount = "0.1"
+            request.Reward.CurrencyCode = "USD"
+            request.Reward.FormattedPrice = "USD 0.1"
+            request.Title
+            request.Keywords
+            request.Description = ""
+            request.QualificationRequirement = [:]
+            request.QualificationRequirement.QualificationTypeId = 1 //qt.QualificationType.QualificationTypeId;
+            request.QualificationRequirement.Comparator =
+            request.QualificationRequirement.Comparator = "GreaterThan"
+            request.QualificationRequirement.IntegerValue = "7"
+            request.RequiredToPreview = "true"
+            request.ResponseGroup = "ALL"
+        when:
+            def response = AMTOperationsService.RegisterHITType(request)
+        then:
+            assert response != null
+    }
+
+
+    def "register hit type with multiple qualification requirement" () {
+
+    }
+
+    def "create hit" () {
+
+    }
 }
