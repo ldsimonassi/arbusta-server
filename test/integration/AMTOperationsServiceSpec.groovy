@@ -45,7 +45,10 @@ class AMTOperationsServiceSpec extends AbstractSpec {
 
     def "register hit type with simple qualification requirement" () {
         setup:
-            def qt = createQualificationType()
+            def qt = createValidQualificationType(AMTOperationsService)
+            println "*******"
+            println qt
+            println "*******"
             def request = [:]
             request.AutoApprovalDelayInSeconds = "604800"
             request.AssignmentDurationInSeconds = "3600"
@@ -57,7 +60,8 @@ class AMTOperationsServiceSpec extends AbstractSpec {
             request.Keywords
             request.Description = ""
             request.QualificationRequirement = [:]
-            request.QualificationRequirement.QualificationTypeId = 1 //qt.QualificationType.QualificationTypeId;
+            println "About to use: ${qt.QualificationType.QualificationTypeId}"
+            request.QualificationRequirement.QualificationTypeId = qt.QualificationType.QualificationTypeId;
             request.QualificationRequirement.Comparator =
             request.QualificationRequirement.Comparator = "GreaterThan"
             request.QualificationRequirement.IntegerValue = "7"
