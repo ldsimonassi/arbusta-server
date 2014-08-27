@@ -19,11 +19,11 @@ environments {
         dataSource {
             pooled = true
             dbCreate = "create-drop"
-            url = "jdbc:mysql://localhost:3306/arbusta2"
+            url = "jdbc:mysql://localhost:3306/arbusta"
             driverClassName = "com.mysql.jdbc.Driver"
             dialect = org.hibernate.dialect.MySQL5InnoDBDialect
-            username = "root"
-            password = ""
+            username = "arbusta"
+            password = "arbusto"
             logSql = true
 
             //dbCreate = "create-drop" // one of 'create', 'create-drop', 'update', 'validate', ''

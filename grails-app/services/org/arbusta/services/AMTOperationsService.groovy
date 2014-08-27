@@ -22,8 +22,6 @@ class AMTOperationsService {
 
         type.addToQualificationRequirements(new QualificationRequirement(qualificationType: q, comparator: "GreaterThan", integerValue: 7))
 
-
-
         type.save()
 
         println "Saved ${type.id}"
