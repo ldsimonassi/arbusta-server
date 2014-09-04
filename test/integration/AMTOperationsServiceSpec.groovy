@@ -46,9 +46,6 @@ class AMTOperationsServiceSpec extends AbstractSpec {
     def "register hit type with simple qualification requirement" () {
         setup:
             def qt = createValidQualificationType(AMTOperationsService)
-            println "*******"
-            println qt
-            println "*******"
             def request = [:]
             request.AutoApprovalDelayInSeconds = "604800"
             request.AssignmentDurationInSeconds = "3600"
@@ -56,25 +53,59 @@ class AMTOperationsServiceSpec extends AbstractSpec {
             request.Reward.Amount = "0.1"
             request.Reward.CurrencyCode = "USD"
             request.Reward.FormattedPrice = "USD 0.1"
-            request.Title
-            request.Keywords
-            request.Description = ""
+            request.Title = "Solve the following equation"
+            request.Keywords = "math, equations, english, basic"
+            request.Description = "Solve those simple equations"
             request.QualificationRequirement = [:]
-            println "About to use: ${qt.QualificationType.QualificationTypeId}"
-            request.QualificationRequirement.QualificationTypeId = qt.QualificationType.QualificationTypeId;
-            request.QualificationRequirement.Comparator =
+            request.QualificationRequirement.QualificationTypeId = ""+qt.QualificationType.QualificationTypeId;
             request.QualificationRequirement.Comparator = "GreaterThan"
             request.QualificationRequirement.IntegerValue = "7"
             request.RequiredToPreview = "true"
             request.ResponseGroup = "ALL"
         when:
             def response = AMTOperationsService.RegisterHITType(request)
+            println "Response: ${response}"
         then:
             assert response != null
     }
 
 
     def "register hit type with multiple qualification requirement" () {
+        setup:
+            def qt1 = createValidQualificationType(AMTOperationsService)
+            def qt2 = createValidQualificationType(AMTOperationsService)
+
+            def request = [:]
+            request.AutoApprovalDelayInSeconds = "604800"
+            request.AssignmentDurationInSeconds = "3600"
+            request.Reward = [:]
+            request.Reward.Amount = "0.1"
+            request.Reward.CurrencyCode = "USD"
+            request.Reward.FormattedPrice = "USD 0.1"
+            request.Title = "Solve the following equation"
+            request.Keywords = "math, equations, english, basic"
+            request.Description = "Solve those simple equations"
+            request.RequiredToPreview = "true"
+            request.ResponseGroup = "ALL"
+
+            request.QualificationRequirement = []
+            request.QualificationRequirement.add([:])
+            request.QualificationRequirement.add([:])
+
+            request.QualificationRequirement[0].QualificationTypeId = ""+qt1.QualificationType.QualificationTypeId;
+            request.QualificationRequirement[0].Comparator = "GreaterThan"
+            request.QualificationRequirement[0].IntegerValue = "7"
+            request.QualificationRequirement[0].RequiredToPreview = "false"
+
+            request.QualificationRequirement[1].QualificationTypeId = ""+qt2.QualificationType.QualificationTypeId;
+            request.QualificationRequirement[1].Comparator = "LessThanOrEqualTo"
+            request.QualificationRequirement[1].IntegerValue = "3"
+            request.QualificationRequirement[1].RequiredToPreview = "false"
+        when:
+            def response = AMTOperationsService.RegisterHITType(request)
+            println "Response: ${response}"
+        then:
+            assert response != null
 
     }
 

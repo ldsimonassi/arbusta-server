@@ -15,12 +15,43 @@ class AMTOperationsService {
         //TODO Implement
     }
 
-    def RegisterHITType(request) {
-        //TODO Use Actual Parameters in the request
-        def q = QualificationType.get(1)
-        def type = new HitType(title: "Categorizacion de imagenes", description: "Identificar la categoría que mejor representa la imagen", reward: 0.1, assignmentDurationInSeconds: 3600L, keywords: "categorias, imagenes, trabajo" )
 
-        type.addToQualificationRequirements(new QualificationRequirement(qualificationType: q, comparator: "GreaterThan", integerValue: 7))
+    def RegisterHITType(request) {
+        def type = new HitType(
+                title: request.Title,
+                description: request.Description,
+                reward: Double.parseDouble(request.Reward.Amount),
+                assignmentDurationInSeconds: Long.parseLong(request.AssignmentDurationInSeconds),
+                keywords: request.Keywords)
+
+        def qr = request.QualificationRequirement
+        def list;
+
+        if (!(qr instanceof List)) {
+            println "Is NOT a list"
+            list = []
+            list.add(qr)
+        } else {
+            println "Is a list"
+            list = qr
+        }
+
+        println "List: [${list}]"
+
+        list.each() { qReq ->
+            println "Element: [${qReq}]"
+            try {
+                def qt = QualificationType.findById(Long.parseLong(qReq."QualificationTypeId"))
+                def q = new QualificationRequirement(
+                        qualificationType: qReq.QualificationTypeId,
+                        comparator: qReq.Comparator,
+                        integerValue: Integer.parseInt(qReq.IntegerValue))
+                type.addToQualificationRequirements(q)
+            } catch (e) {
+                throw new Exception("Error while trying to create QualificationRequirement ["+qReq+"]", e)
+            }
+        }
+
 
         type.save()
 
@@ -29,6 +60,8 @@ class AMTOperationsService {
         type.errors.each {
             println it
         }
+
+        // TODO Build good response.
     }
 
     def CreateQualificationType(request) {
