@@ -52,7 +52,6 @@ class AMTOperationsService {
             }
         }
 
-
         type.save()
 
         println "Saved ${type.id}"
@@ -60,8 +59,12 @@ class AMTOperationsService {
         type.errors.each {
             println it
         }
-
-        // TODO Build good response.
+        def response = [:]
+        response.RegisterHITTypeResult = [:]
+        response.RegisterHITTypeResult.Request = [:]
+        response.RegisterHITTypeResult.Request.IsValid = "True"
+        response.RegisterHITTypeResult.HITTypeId = "" + type.id
+        return response
     }
 
     def CreateQualificationType(request) {
