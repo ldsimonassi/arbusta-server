@@ -109,7 +109,7 @@ class AMTOperationsServiceSpec extends AbstractSpec {
         println "TypeId: ${response.RegisterHITTypeResult.HITTypeId}"
         then:
         assert response != null
-        response.RegisterHITTypeResult.HITTypeId != null
+        assert response.RegisterHITTypeResult.HITTypeId != null
     }
 
     def "create hit" () {
