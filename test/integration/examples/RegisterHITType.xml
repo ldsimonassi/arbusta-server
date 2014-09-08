@@ -1,0 +1,26 @@
+<Request>
+    <!--Optional:-->
+    <AutoApprovalDelayInSeconds>604800</AutoApprovalDelayInSeconds>
+    <AssignmentDurationInSeconds>3600</AssignmentDurationInSeconds>
+    <Reward>
+        <Amount>0.1</Amount>
+        <CurrencyCode>USD</CurrencyCode>
+        <!--Optional:-->
+        <FormattedPrice>USD 0.1</FormattedPrice>
+    </Reward>
+    <Title>Categorizar imagenes</Title>
+    <!--Optional:-->
+    <Keywords>Categoria, Imagen</Keywords>
+    <Description>Coloque la imagen en la categoria a la que mejor se ajusta</Description>
+    <!--Zero or more repetitio-->
+    <QualificationRequirement>
+        <QualificationTypeId>1</QualificationTypeId>
+        <Comparator>GreaterThan</Comparator>
+        <!--Optional:-->
+        <IntegerValue>7</IntegerValue>
+        <!--Optional:-->
+        <RequiredToPreview>true</RequiredToPreview>
+    </QualificationRequirement>
+    <!--Zero or more repetitio-->
+    <ResponseGroup>ALL</ResponseGroup>
+</Request>

@@ -1,0 +1,19 @@
+<Request>
+    <Name>Conocimientos de ingles</Name>
+    <!--Optional:-->
+    <Keywords>ingles,idioma,lenguaje</Keywords>
+    <!--Optional:-->
+    <Description>Saber escribir y escuchar en idioma ingles</Description>
+    <!--Optional:-->
+    <QualificationTypeStatus>Active</QualificationTypeStatus>
+    <!--Optional:-->
+    <RetryDelayInSeconds>604800</RetryDelayInSeconds>
+    <!--Optional:-->
+    <Test>The cat is under the table</Test>
+    <!--Optional:-->
+    <AnswerKey>No</AnswerKey>
+    <!--Optional:-->
+    <TestDurationInSeconds>3600</TestDurationInSeconds>
+    <!--Optional:-->
+    <AutoGranted>false</AutoGranted>
+</Request>

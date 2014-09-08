@@ -2,6 +2,7 @@ package org.arbusta
 
 
 import org.arbusta.services.*
+import org.arbusta.XmlHelper
 
 class AMTController {
 
@@ -25,8 +26,7 @@ class AMTController {
         body.children().each { operation ->
             def operationName = operation.name()
             println "Operation: ${operationName}, parsing Request tag"
-            def requestData = hashBuilder(operation.Request)
-
+            def requestData = XmlHelper.hashBuilder(operation.Request)
             // call operationName method
             def individualResponse = AMTOperationsService."$operationName"(requestData)
             responses.add(individualResponse)
@@ -43,32 +43,5 @@ class AMTController {
     println "RegisterHITType method called"
     println "AutoApprovalDelayInSeconds: ${req.AutoApprovalDelayInSeconds}"
     println "QualificationRequirement: ${req.QualificationRequirement}"
-  }
-
-  def hashBuilder(def xml) {
-	  def ret = [:]
-	  xml.children().each { child ->
-		  def name = child.name()
-		  def value
-
-		  if(child.children().size() == 0)
-			  value = child.text();
-		  else
-			  value = hashBuilder(child);
-
-		  if(ret[name] != null) {
-			  if(ret[name] instanceof java.util.ArrayList) {
-				  ret[name].add(value)
-			  } else {
-				  def array = []
-				  array.add(ret[name])
-				  array.add(value)
-				  ret[name] = array
-			  }
-		  } else {
-			  ret[name] = value
-		  }
-	  }
-	  return ret;
   }
 }

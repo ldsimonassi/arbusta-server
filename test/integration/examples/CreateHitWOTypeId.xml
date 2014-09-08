@@ -1,0 +1,13 @@
+<Request>
+    <MaxAssignments>1</MaxAssignments>
+    <AutoApprovalDelayInSeconds>1296000</AutoApprovalDelayInSeconds>
+    <LifetimeInSeconds>259200</LifetimeInSeconds>
+    <AssignmentDurationInSeconds>3600</AssignmentDurationInSeconds>
+    <Reward>
+        <Amount>0.05000000000000000277555756156289135105907917022705078125</Amount>
+        <CurrencyCode>USD</CurrencyCode>
+    </Reward>
+    <Title>Answer a question</Title>
+    <Description>This is a HIT created by the Mechanical Turk SDK.  Please answer the provided question.</Description>
+    <Question>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;QuestionForm xmlns=&quot;http://mechanicalturk.amazonaws.com/AWSMechanicalTurkDataSchemas/2005-10-01/QuestionForm.xsd&quot;&gt;  &lt;Question&gt;    &lt;QuestionIdentifier&gt;1&lt;/QuestionIdentifier&gt;    &lt;QuestionContent&gt;      &lt;Text&gt;What is the weather like right now in Seattle, WA?&lt;/Text&gt;    &lt;/QuestionContent&gt;    &lt;AnswerSpecification&gt;      &lt;FreeTextAnswer/&gt;    &lt;/AnswerSpecification&gt;  &lt;/Question&gt;&lt;/QuestionForm&gt;</Question>
+</Request>
