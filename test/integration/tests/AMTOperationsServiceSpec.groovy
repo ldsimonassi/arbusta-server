@@ -88,7 +88,7 @@ class AMTOperationsServiceSpec extends Specification {
             def request = TestsHelper.loadRequest("CreateHitWOTypeId")
         when:
             def response = AMTOperationsService.CreateHIT(request)
-            println "Hit Created response :[${response}]"
+
         then:
             assert response != null
             assert response.HITId != null
@@ -102,5 +102,33 @@ class AMTOperationsServiceSpec extends Specification {
             assert response.LifetimeInSeconds.toString() == request.LifetimeInSeconds
             assert response.AssignmentDurationInSeconds.toString() == request.AssignmentDurationInSeconds
             assert response.Reward.Amount.toString() == request.Reward.Amount
+    }
+
+    def "create complex hit with hit_type" () {
+        setup:
+            def request
+            def response
+
+            //Register Hit Type
+            request = TestsHelper.loadRequest("RegisterHITType")
+            request.QualificationRequirement = null
+            response = AMTOperationsService.RegisterHITType(request)
+
+            def hitTypeId = response.RegisterHITTypeResult.HITTypeId
+            //Prepare CreateHitRequest
+            request = TestsHelper.loadRequest("CreateHitWTypeId")
+            request.HITTypeId = hitTypeId
+
+        when:
+            response = AMTOperationsService.CreateHIT(request)
+            println "Hit Created response :[${response}]"
+        then:
+            assert response != null
+            assert response.HITId != null
+            assert response.HITTypeId != null
+            assert response.CreationTime != null
+            assert response.Question != null
+            assert response.MaxAssignments.toString() == request.MaxAssignments
+            assert response.LifetimeInSeconds.toString() == request.LifetimeInSeconds
     }
 }

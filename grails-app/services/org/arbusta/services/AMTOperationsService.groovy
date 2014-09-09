@@ -71,8 +71,6 @@ class AMTOperationsService {
         }
     }
 
-
-
     def RegisterHITType(request) {
         def type = new HitType(
                 title: request.Title,
@@ -110,13 +108,18 @@ class AMTOperationsService {
                     throw new Exception("Error while trying to create QualificationRequirement [" + qReq + "]", e)
                 }
             }
+        } else {
+            println "QR is null"
         }
 
-        type.save()
-
-        type.errors.each {
-            println it
+        if(!type.save()) {
+            type.errors.each { it ->
+                println "----------"
+                println it
+            }
+            throw new Exception("Impossible to RegisterHITType ${request}")
         }
+
 
         def response = [:]
         response.RegisterHITTypeResult = [:]
