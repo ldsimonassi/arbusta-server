@@ -130,4 +130,25 @@ class AMTOperationsServiceSpec extends Specification {
             assert response.MaxAssignments.toString() == request.MaxAssignments
             assert response.LifetimeInSeconds.toString() == request.LifetimeInSeconds
     }
+
+
+    def "assign qualification to worker" () {
+        setup:
+            def qTypeId = AMTOperationsService.CreateQualificationType(TestsHelper.loadRequest("CreateQualificationType")).QualificationType.QualificationTypeId
+            def workerId = TestsHelper.createDummyWorker()
+            def request = TestsHelper.loadRequest("AssignQualification")
+            // Override dynamic fields
+            request.QualificationTypeId = qTypeId.toString()
+            request.WorkerId = workerId.toString()
+        when:
+            // Assign qualification to worker.
+            def response = AMTOperationsService.AssignQualification(request)
+        then:
+            assert workerId != null
+            assert qTypeId != null
+            assert request != null
+            assert response == null
+    }
+
+
 }

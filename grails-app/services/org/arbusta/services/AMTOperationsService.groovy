@@ -1,11 +1,13 @@
 package org.arbusta.services
 
 import org.arbusta.domain.Hit
+import org.arbusta.domain.QualificationAssignment
 import org.arbusta.domain.QualificationType
 import org.arbusta.domain.QualificationRequirement
 import org.arbusta.domain.HitType
 import grails.transaction.Transactional
 import grails.validation.ValidationException
+import org.arbusta.domain.Worker
 
 import java.sql.Timestamp
 
@@ -152,4 +154,28 @@ class AMTOperationsService {
         ret.QualificationType.AutoGranted = q.autoGranted
         return ret
     }
+
+
+    def AssignQualification(request) {
+
+        def worker = Worker.findById(Long.parseLong(request.WorkerId))
+        def qt = QualificationType.findById(Long.parseLong(request.QualificationTypeId))
+
+        def qa = new QualificationAssignment(
+                                    worker: worker,
+                                    qualification: qt,
+                                    integerValue: Integer.parseInt(request.IntegerValue),
+                                    sendNotification: request.SendNotification)
+
+        if(!qa.save()) {
+            qa.errors.each() { it ->
+                println it
+            }
+            throw new Exception("Unable to save QualificationAssignment ${request}")
+        }
+
+
+    }
+
+
 }

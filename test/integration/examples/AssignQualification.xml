@@ -1,0 +1,7 @@
+<Request>
+    <QualificationTypeId>?</QualificationTypeId>
+    <WorkerId>?</WorkerId>
+    <!--Optional:-->
+    <IntegerValue>9</IntegerValue>
+    <SendNotification>false</SendNotification>
+</Request>
