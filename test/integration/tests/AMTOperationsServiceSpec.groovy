@@ -88,7 +88,6 @@ class AMTOperationsServiceSpec extends Specification {
             def request = TestsHelper.loadRequest("CreateHitWOTypeId")
         when:
             def response = AMTOperationsService.CreateHIT(request)
-
         then:
             assert response != null
             assert response.HITId != null
