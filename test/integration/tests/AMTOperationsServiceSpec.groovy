@@ -5,8 +5,6 @@ import org.arbusta.domain.*
 import org.arbusta.services.AMTOperationsService
 
 class AMTOperationsServiceSpec extends Specification {
-
-    //Fields
     def AMTOperationsService
 
     def "create simple qualification type" () {
@@ -31,7 +29,6 @@ class AMTOperationsServiceSpec extends Specification {
         then:
             assert qt == null
     }
-
 
     def "register hit type with simple qualification requirement" () {
         setup:
@@ -86,16 +83,24 @@ class AMTOperationsServiceSpec extends Specification {
             assert response.RegisterHITTypeResult.HITTypeId !=null
     }
 
-
-
-    /*
     def "create simple hit without hit_type" () {
         setup:
-            def request = TestsHelper.loadRequest("")
+            def request = TestsHelper.loadRequest("CreateHitWOTypeId")
         when:
-
-
+            def response = AMTOperationsService.CreateHIT(request)
+            println "Hit Created response :[${response}]"
+        then:
+            assert response != null
+            assert response.HITId != null
+            assert response.HITTypeId != null
+            assert response.CreationTime != null
+            assert response.Title == request.Title
+            assert response.Description == request.Description
+            assert response.Question != null
+            assert response.MaxAssignments.toString() == request.MaxAssignments
+            assert response.AutoApprovalDelayInSeconds.toString() == request.AutoApprovalDelayInSeconds
+            assert response.LifetimeInSeconds.toString() == request.LifetimeInSeconds
+            assert response.AssignmentDurationInSeconds.toString() == request.AssignmentDurationInSeconds
+            assert response.Reward.Amount.toString() == request.Reward.Amount
     }
-
-    */
 }

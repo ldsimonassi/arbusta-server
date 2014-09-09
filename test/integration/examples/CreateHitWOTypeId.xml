@@ -4,7 +4,7 @@
     <LifetimeInSeconds>259200</LifetimeInSeconds>
     <AssignmentDurationInSeconds>3600</AssignmentDurationInSeconds>
     <Reward>
-        <Amount>0.05000000000000000277555756156289135105907917022705078125</Amount>
+        <Amount>0.05</Amount>
         <CurrencyCode>USD</CurrencyCode>
     </Reward>
     <Title>Answer a question</Title>
