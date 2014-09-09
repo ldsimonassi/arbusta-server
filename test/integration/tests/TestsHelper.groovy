@@ -1,6 +1,7 @@
 package tests
 
 import org.arbusta.XmlHelper
+import org.arbusta.domain.QualificationRequest
 import org.arbusta.domain.Worker
 import org.codehaus.groovy.grails.io.support.IOUtils
 
@@ -27,6 +28,11 @@ class TestsHelper {
             }
             throw new Exception("Cannot create dummy worker")
         }
-        return worker.id
+        return worker
+    }
+
+    static def createDummyQualificationRequest() {
+
+        new QualificationRequest(worker: )
     }
 }

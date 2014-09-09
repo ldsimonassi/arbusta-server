@@ -135,11 +135,11 @@ class AMTOperationsServiceSpec extends Specification {
     def "assign qualification to worker" () {
         setup:
             def qTypeId = AMTOperationsService.CreateQualificationType(TestsHelper.loadRequest("CreateQualificationType")).QualificationType.QualificationTypeId
-            def workerId = TestsHelper.createDummyWorker()
+            def worker = TestsHelper.createDummyWorker()
             def request = TestsHelper.loadRequest("AssignQualification")
             // Override dynamic fields
             request.QualificationTypeId = qTypeId.toString()
-            request.WorkerId = workerId.toString()
+            request.WorkerId = worker.id.toString()
         when:
             // Assign qualification to worker.
             def response = AMTOperationsService.AssignQualification(request)
@@ -148,7 +148,19 @@ class AMTOperationsServiceSpec extends Specification {
             assert qTypeId != null
             assert request != null
             assert response == null
+            // TODO Add domain related assertions.
     }
 
+
+    def "grant qualification to a worker" () {
+        setup:
+            // Create qualification request
+            // Load example XML
+        when:
+            // Execute AMT Operation
+        then:
+            // Perform checks on the output
+            // TODO add domain related assertions
+    }
 
 }
