@@ -2,6 +2,7 @@ package org.arbusta.services
 
 import org.arbusta.domain.Hit
 import org.arbusta.domain.QualificationAssignment
+import org.arbusta.domain.QualificationRequest
 import org.arbusta.domain.QualificationType
 import org.arbusta.domain.QualificationRequirement
 import org.arbusta.domain.HitType
@@ -37,13 +38,7 @@ class AMTOperationsService {
                     creationTime: new java.sql.Timestamp(System.currentTimeMillis())
             );
 
-            if(!hit.save()) {
-                hit.errors.each { it ->
-                    println "-------------------"
-                    println it
-                }
-                throw new Exception("Unable to save Hit ${hit}")
-            }
+            if(!hit.save()) throw new ValidationException("Unable to save Hit ${hit}", hit.errors)
 
             response = [:]
 
@@ -114,14 +109,8 @@ class AMTOperationsService {
             println "QR is null"
         }
 
-        if(!type.save()) {
-            type.errors.each { it ->
-                println "----------"
-                println it
-            }
-            throw new Exception("Impossible to RegisterHITType ${request}")
-        }
-
+        if(!type.save())
+            throw new ValidationException("Impossible to RegisterHITType ${request}", type.errors)
 
         def response = [:]
         response.RegisterHITTypeResult = [:]
@@ -157,25 +146,27 @@ class AMTOperationsService {
 
 
     def AssignQualification(request) {
-
         def worker = Worker.findById(Long.parseLong(request.WorkerId))
         def qt = QualificationType.findById(Long.parseLong(request.QualificationTypeId))
 
         def qa = new QualificationAssignment(
                                     worker: worker,
-                                    qualification: qt,
+                                    qualificationType: qt,
                                     integerValue: Integer.parseInt(request.IntegerValue),
                                     sendNotification: request.SendNotification)
 
-        if(!qa.save()) {
-            qa.errors.each() { it ->
-                println it
-            }
-            throw new Exception("Unable to save QualificationAssignment ${request}")
-        }
-
-
+        if(!qa.save()) throw new ValidationException("Unable to save QualificationAssignment ${request}", qa.errors)
+        return null
     }
 
+    def GrantQualification(request) {
+        def qRequest = QualificationRequest.findById(Long.parseLong(request.QualificationRequestId))
+        def qa = new QualificationAssignment(worker: qRequest.worker, qualificationType: qRequest.qualificationType, integerValue: Integer.parseInt(request.IntegerValue), sendNotification: "true")
 
+        if(!qa.save()) throw new ValidationException("Unable to create QualificationAssignment as part of the GrantQualificationRequest for ${request}", qa.errors)
+        qRequest.assignment = qa
+        if(!qRequest.save()) throw new javax.xml.bind.ValidationException("Unable to link assignment to request", qRequest.errors)
+
+        return null
+    }
 }

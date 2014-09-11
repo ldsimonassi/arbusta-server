@@ -3031,7 +3031,7 @@
          </ns:Request>
       </ns:AssignQualification>
    </soapenv:Body>
-</soapenv:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://soap.amazon.com"/></con:call></con:operation><con:operation isOneWay="false" action="http://soap.amazon.com" name="BlockWorker" bindingOperationName="BlockWorker" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>https://mechanicalturk.amazonaws.com/?Service=AWSMechanicalTurkRequester</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns="http://requester.mturk.amazonaws.com/doc/2012-03-25">
+</soapenv:Envelope>]]></con:request><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://soap.amazon.com"/><con:wsrmConfig version="1.2"/></con:call></con:operation><con:operation isOneWay="false" action="http://soap.amazon.com" name="BlockWorker" bindingOperationName="BlockWorker" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>https://mechanicalturk.amazonaws.com/?Service=AWSMechanicalTurkRequester</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns="http://requester.mturk.amazonaws.com/doc/2012-03-25">
    <soapenv:Header/>
    <soapenv:Body>
       <ns:BlockWorker>
@@ -3071,29 +3071,105 @@
          </ns:Request>
       </ns:ChangeHITTypeOfHIT>
    </soapenv:Body>
-</soapenv:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://soap.amazon.com"/></con:call></con:operation><con:operation isOneWay="false" action="http://soap.amazon.com" name="CreateHIT" bindingOperationName="CreateHIT" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call name="Request 1"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/arbusta-server/hitType/index</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" 
-				  xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
-				  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-	<soapenv:Body>
-	   <CreateHIT xmlns="http://requester.mturk.amazonaws.com/doc/2012-03-25">
-		   <AWSAccessKeyId>AKIAIGMFIAYDHSEJGVPA</AWSAccessKeyId>
-		   <Timestamp>2014-06-18T03:11:18.870Z</Timestamp>
-		   <Signature>LrzpanDD2d628M2c4wA7TvuFfmU=</Signature>
-		   <Request>
-			   <MaxAssignments>1</MaxAssignments>
-			   <AutoApprovalDelayInSeconds>1296000</AutoApprovalDelayInSeconds>
-			   <LifetimeInSeconds>259200</LifetimeInSeconds>
-			   <AssignmentDurationInSeconds>3600</AssignmentDurationInSeconds>
-			   <Reward>
-				   <Amount>0.05000000000000000277555756156289135105907917022705078125</Amount>
-				   <CurrencyCode>USD</CurrencyCode>
-			   </Reward>
-			   <Title>Answer a question</Title>
-			   <Description>This is a HIT created by the Mechanical Turk SDK.  Please answer the provided question.</Description>
-			   <Question>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;QuestionForm xmlns=&quot;http://mechanicalturk.amazonaws.com/AWSMechanicalTurkDataSchemas/2005-10-01/QuestionForm.xsd&quot;&gt;  &lt;Question&gt;    &lt;QuestionIdentifier&gt;1&lt;/QuestionIdentifier&gt;    &lt;QuestionContent&gt;      &lt;Text&gt;What is the weather like right now in Seattle, WA?&lt;/Text&gt;    &lt;/QuestionContent&gt;    &lt;AnswerSpecification&gt;      &lt;FreeTextAnswer/&gt;    &lt;/AnswerSpecification&gt;  &lt;/Question&gt;&lt;/QuestionForm&gt;</Question>
-		   </Request>
-	   </CreateHIT>
-	</soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://soap.amazon.com"/></con:call></con:operation><con:operation isOneWay="false" action="http://soap.amazon.com" name="CreateHIT" bindingOperationName="CreateHIT" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call name="Request 1"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/arbusta-server/hitType/index</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns="http://requester.mturk.amazonaws.com/doc/2012-03-25" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<soapenv:Header/>
+   <soapenv:Body>
+	   <ns:CreateHIT xmlns="http://requester.mturk.amazonaws.com/doc/2012-03-25">
+		   <ns:AWSAccessKeyId>AKIAIGMFIAYDHSEJGVPA</ns:AWSAccessKeyId>
+         <ns:Timestamp>2014-06-18T03:11:18.870Z</ns:Timestamp>
+         <ns:Signature>LrzpanDD2d628M2c4wA7TvuFfmU=</ns:Signature>
+         <!--Optional:-->
+         <ns:Validate>?</ns:Validate>
+         <!--Optional:-->
+         <ns:Credential>?</ns:Credential>
+         <!--1 or more repetitions:-->
+         <ns:Request>
+			   <!--Optional:-->
+            <ns:HITTypeId>?</ns:HITTypeId>
+            <!--Optional:-->
+            <ns:MaxAssignments>1</ns:MaxAssignments>
+            <!--Optional:-->
+            <ns:AutoApprovalDelayInSeconds>1296000</ns:AutoApprovalDelayInSeconds>
+            <ns:LifetimeInSeconds>259200</ns:LifetimeInSeconds>
+            <!--Optional:-->
+            <ns:AssignmentDurationInSeconds>3600</ns:AssignmentDurationInSeconds>
+            <!--Optional:-->
+            <ns:Reward>
+				   <ns:Amount>0.05000000000000000277555756156289135105907917022705078125</ns:Amount>
+               <ns:CurrencyCode>USD</ns:CurrencyCode>
+               <!--Optional:-->
+               <ns:FormattedPrice>?</ns:FormattedPrice>
+            </ns:Reward>
+            <!--Optional:-->
+            <ns:Title>Answer a question</ns:Title>
+            <!--Optional:-->
+            <ns:Keywords>?</ns:Keywords>
+            <!--Optional:-->
+            <ns:Description>This is a HIT created by the Mechanical Turk SDK.  Please answer the provided question.</ns:Description>
+            <!--Optional:-->
+            <ns:Question><![CDATA[<?xml version="1.0" encoding="UTF-8"?><QuestionForm xmlns="http://mechanicalturk.amazonaws.com/AWSMechanicalTurkDataSchemas/2005-10-01/QuestionForm.xsd">  <Question>    <QuestionIdentifier>1</QuestionIdentifier>    <QuestionContent>      <Text>What is the weather like right now in Seattle, WA?</Text>    </QuestionContent>    <AnswerSpecification>      <FreeTextAnswer/>    </AnswerSpecification>  </Question></QuestionForm>]]]]>><![CDATA[</ns:Question>
+            <!--Optional:-->
+            <ns:RequesterAnnotation>?</ns:RequesterAnnotation>
+            <!--Zero or more repetitions:-->
+            <ns:QualificationRequirement>
+               <ns:QualificationTypeId>?</ns:QualificationTypeId>
+               <ns:Comparator>?</ns:Comparator>
+               <!--Optional:-->
+               <ns:IntegerValue>?</ns:IntegerValue>
+               <!--Optional:-->
+               <ns:LocaleValue>
+                  <!--Optional:-->
+                  <ns:Country>?</ns:Country>
+               </ns:LocaleValue>
+               <!--Optional:-->
+               <ns:RequiredToPreview>?</ns:RequiredToPreview>
+            </ns:QualificationRequirement>
+            <!--Optional:-->
+            <ns:UniqueRequestToken>?</ns:UniqueRequestToken>
+            <!--Optional:-->
+            <ns:AssignmentReviewPolicy>
+               <ns:PolicyName>?</ns:PolicyName>
+               <!--Zero or more repetitions:-->
+               <ns:Parameter>
+                  <ns:Key>?</ns:Key>
+                  <!--Zero or more repetitions:-->
+                  <ns:Value>?</ns:Value>
+                  <!--Zero or more repetitions:-->
+                  <ns:MapEntry>
+                     <ns:Key>?</ns:Key>
+                     <!--Zero or more repetitions:-->
+                     <ns:Value>?</ns:Value>
+                  </ns:MapEntry>
+               </ns:Parameter>
+            </ns:AssignmentReviewPolicy>
+            <!--Optional:-->
+            <ns:HITReviewPolicy>
+               <ns:PolicyName>?</ns:PolicyName>
+               <!--Zero or more repetitions:-->
+               <ns:Parameter>
+                  <ns:Key>?</ns:Key>
+                  <!--Zero or more repetitions:-->
+                  <ns:Value>?</ns:Value>
+                  <!--Zero or more repetitions:-->
+                  <ns:MapEntry>
+                     <ns:Key>?</ns:Key>
+                     <!--Zero or more repetitions:-->
+                     <ns:Value>?</ns:Value>
+                  </ns:MapEntry>
+               </ns:Parameter>
+            </ns:HITReviewPolicy>
+            <!--Optional:-->
+            <ns:HITLayoutId>?</ns:HITLayoutId>
+            <!--Zero or more repetitions:-->
+            <ns:HITLayoutParameter>
+               <ns:Name>?</ns:Name>
+               <ns:Value>?</ns:Value>
+            </ns:HITLayoutParameter>
+            <!--Zero or more repetitions:-->
+            <ns:ResponseGroup>?</ns:ResponseGroup>
+         </ns:Request>
+      </ns:CreateHIT>
+   </soapenv:Body>
 </soapenv:Envelope>]]></con:request><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://soap.amazon.com"/><con:wsrmConfig version="1.2"/></con:call></con:operation><con:operation isOneWay="false" action="http://soap.amazon.com" name="CreateQualificationType" bindingOperationName="CreateQualificationType" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call name="Request 1"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/arbusta-server/AMT/index</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns="http://requester.mturk.amazonaws.com/doc/2012-03-25">
    <soapenv:Header/>
    <soapenv:Body>
@@ -3623,7 +3699,7 @@
          </ns:Request>
       </ns:GrantBonus>
    </soapenv:Body>
-</soapenv:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://soap.amazon.com"/></con:call></con:operation><con:operation isOneWay="false" action="http://soap.amazon.com" name="GrantQualification" bindingOperationName="GrantQualification" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>https://mechanicalturk.amazonaws.com/?Service=AWSMechanicalTurkRequester</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns="http://requester.mturk.amazonaws.com/doc/2012-03-25">
+</soapenv:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://soap.amazon.com"/></con:call></con:operation><con:operation isOneWay="false" action="http://soap.amazon.com" name="GrantQualification" bindingOperationName="GrantQualification" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call name="Request 1"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>https://mechanicalturk.amazonaws.com/?Service=AWSMechanicalTurkRequester</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns="http://requester.mturk.amazonaws.com/doc/2012-03-25">
    <soapenv:Header/>
    <soapenv:Body>
       <ns:GrantQualification>
@@ -3644,7 +3720,7 @@
          </ns:Request>
       </ns:GrantQualification>
    </soapenv:Body>
-</soapenv:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://soap.amazon.com"/></con:call></con:operation><con:operation isOneWay="false" action="http://soap.amazon.com" name="Help" bindingOperationName="Help" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>https://mechanicalturk.amazonaws.com/?Service=AWSMechanicalTurkRequester</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns="http://requester.mturk.amazonaws.com/doc/2012-03-25">
+</soapenv:Envelope>]]></con:request><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://soap.amazon.com"/><con:wsrmConfig version="1.2"/></con:call></con:operation><con:operation isOneWay="false" action="http://soap.amazon.com" name="Help" bindingOperationName="Help" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>https://mechanicalturk.amazonaws.com/?Service=AWSMechanicalTurkRequester</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns="http://requester.mturk.amazonaws.com/doc/2012-03-25">
    <soapenv:Header/>
    <soapenv:Body>
       <ns:Help>

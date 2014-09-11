@@ -144,23 +144,27 @@ class AMTOperationsServiceSpec extends Specification {
             // Assign qualification to worker.
             def response = AMTOperationsService.AssignQualification(request)
         then:
-            assert workerId != null
+            //assert workerId != null
             assert qTypeId != null
             assert request != null
             assert response == null
+
             // TODO Add domain related assertions.
     }
 
 
     def "grant qualification to a worker" () {
         setup:
-            // Create qualification request
-            // Load example XML
+            def request = TestsHelper.loadRequest("CreateQualificationType")
+            def qt = AMTOperationsService.CreateQualificationType(request).QualificationType.QualificationTypeId
+            def qr = TestsHelper.createDummyQualificationRequest(qt)
+            request = TestsHelper.loadRequest("GrantQualification")
+            request.QualificationRequestId = "${qr.id}"
         when:
-            // Execute AMT Operation
+            def response = AMTOperationsService.GrantQualification(request)
         then:
-            // Perform checks on the output
-            // TODO add domain related assertions
+            assert response == null
+            qr.assignment != null
     }
 
 }

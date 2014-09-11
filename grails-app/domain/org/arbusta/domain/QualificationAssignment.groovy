@@ -7,7 +7,7 @@ class QualificationAssignment {
      */
 
     Worker worker
-    QualificationType qualification
+    QualificationType qualificationType
     Integer integerValue
     String sendNotification
 
