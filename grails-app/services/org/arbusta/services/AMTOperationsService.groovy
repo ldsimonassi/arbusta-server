@@ -144,7 +144,6 @@ class AMTOperationsService {
         return ret
     }
 
-
     def AssignQualification(request) {
         def worker = Worker.findById(Long.parseLong(request.WorkerId))
         def qt = QualificationType.findById(Long.parseLong(request.QualificationTypeId))
@@ -170,8 +169,6 @@ class AMTOperationsService {
         return null
     }
 
-
-
     def ChangeHITTypeOfHIT(request) {
         def hit = Hit.findById(Long.parseLong(request.HITId))
         def hitType = HitType.findById(Long.parseLong(request.HITTypeId))
@@ -187,10 +184,16 @@ class AMTOperationsService {
             throw new ValidationException("Unable to change hit type ${request}")
     }
 
+    def ExtendHIT(request) {
+        //TODO Implement
 
+        //Load HIT by id
+        //Update fields
+        //Save & check errors
+    }
     /**
      * TODO: Implent
-     * ExtendHIT
+     *
      * ForceExpireHIT
      * SetHITAsReviewing
      * RejectQualificationRequest

@@ -191,6 +191,26 @@ class AMTOperationsServiceSpec extends Specification {
             assert Hit.findById(hitId).hitType.id.toString() == hitTypeId
     }
 
+    def "extend hit duration and assignments"() {
+        setup:
+            // Create Hit
+            def request = TestsHelper.loadRequest("CreateHitWOTypeId")
+            def response = AMTOperationsService.CreateHIT(request)
+            def hitId = response.HITId
+
+            // Prepare the request to be tested
+            request = TestsHelper.loadRequest("ExtendHIT")
+            request.HITId = hitId
+        when:
+            response = AMTOperationsService.ExtendHIT(request)
+        then:
+            assert response == null
+
+            // Verify increments
+            // Hit.findById(Long.parseLong(hitId)).
+
+    }
+
     /****************************************************
      * TODO: Implement the following tests:
      * ExtendHIT

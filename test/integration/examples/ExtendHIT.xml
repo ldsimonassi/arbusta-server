@@ -1,0 +1,5 @@
+<Request>
+    <HITId>?</HITId>
+    <MaxAssignmentsIncrement>3</MaxAssignmentsIncrement>
+    <ExpirationIncrementInSeconds>86400</ExpirationIncrementInSeconds>
+</Request>
