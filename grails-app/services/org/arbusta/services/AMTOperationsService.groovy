@@ -42,9 +42,9 @@ class AMTOperationsService {
 
             response = [:]
 
-            response.HITId = hit.id
-            response.HITTypeId = hit.hitType.id
-            response.CreationTime = hit.creationTime
+            response.HITId = hit.id.toString()
+            response.HITTypeId = hit.hitType.id.toString()
+            response.CreationTime = hit.creationTime.toString()
             response.Title = hit.hitType.title
             response.Description = hit.hitType.description
             response.Keywords = hit.hitType.keywords
@@ -55,13 +55,13 @@ class AMTOperationsService {
 
             // HitType related Information
             response.Reward = [:]
-            response.Reward.Amount = hit.hitType.reward
-            response.Reward.CurrencyCode
-            response.Reward.FormattedPrice
-            response.LifetimeInSeconds = hit.lifetimeInSeconds
-            response.AssignmentDurationInSeconds = hit.hitType.assignmentDurationInSeconds
-            response.MaxAssignments = hit.maxAssignments
-            response.AutoApprovalDelayInSeconds = hit.hitType.autoApprovalDelayInSeconds
+            response.Reward.Amount = hit.hitType.reward.toString()
+            response.Reward.CurrencyCode = "USD"
+            response.Reward.FormattedPrice = "USD${response.Reward.Amount}"
+            response.LifetimeInSeconds = hit.lifetimeInSeconds.toString()
+            response.AssignmentDurationInSeconds = hit.hitType.assignmentDurationInSeconds.toString()
+            response.MaxAssignments = hit.maxAssignments.toString()
+            response.AutoApprovalDelayInSeconds = hit.hitType.autoApprovalDelayInSeconds.toString()
             //response.QualificationRequirement
 
             return response
@@ -169,4 +169,33 @@ class AMTOperationsService {
 
         return null
     }
+
+
+
+    def ChangeHITTypeOfHIT(request) {
+        def hit = Hit.findById(Long.parseLong(request.HITId))
+        def hitType = HitType.findById(Long.parseLong(request.HITTypeId))
+
+        if(hit==null) throw new IllegalArgumentException("Hit ${request.HITId} does not exist")
+
+        if(hitType==null) throw new IllegalArgumentException("HitType ${request.HITTypeId} does not exist")
+
+
+        hit.setHitType(hitType)
+
+        if(!hit.save())
+            throw new ValidationException("Unable to change hit type ${request}")
+    }
+
+
+    /**
+     * TODO: Implent
+     * ExtendHIT
+     * ForceExpireHIT
+     * SetHITAsReviewing
+     * RejectQualificationRequest
+     * RevokeQualification
+     * UpdateQualificationScore
+     * UpdateQualificationType
+     */
 }

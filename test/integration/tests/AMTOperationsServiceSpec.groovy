@@ -167,4 +167,39 @@ class AMTOperationsServiceSpec extends Specification {
             qr.assignment != null
     }
 
+    def "change hit type" () {
+        setup:
+            // Register Hit Type
+            def request = TestsHelper.loadRequest("RegisterHITType")
+            request.QualificationRequirement = null
+            def response = AMTOperationsService.RegisterHITType(request)
+            def hitTypeId = response.RegisterHITTypeResult.HITTypeId
+
+            // Create Hit
+            request = TestsHelper.loadRequest("CreateHitWOTypeId")
+            response = AMTOperationsService.CreateHIT(request)
+            def hitId = response.HITId
+
+            // Prepare the request to be tested
+            request = TestsHelper.loadRequest("ChangeHITTypeOfHIT")
+            request.HITId = hitId.toString()
+            request.HITTypeId = hitTypeId.toString()
+        when:
+            response = AMTOperationsService.ChangeHITTypeOfHIT(request)
+        then:
+            assert response == null
+            assert Hit.findById(hitId).hitType.id.toString() == hitTypeId
+    }
+
+    /****************************************************
+     * TODO: Implement the following tests:
+     * ExtendHIT
+     * ForceExpireHIT
+     * SetHITAsReviewing
+     * RejectQualificationRequest
+     * RevokeQualification
+     * UpdateQualificationScore
+     * UpdateQualificationType
+     ***************************************************/
+
 }
