@@ -9,6 +9,8 @@ class QualificationRequest {
     String answer
     Timestamp submitTime
     QualificationAssignment assignment
+    String status = "Pending"
+    String reason
 
     static constraints = {
         worker(nullable: false)
@@ -17,5 +19,11 @@ class QualificationRequest {
         answer(nullable: true)
         submitTime(nullable: false)
         assignment(nullable: true)
+        status(nullable: false, blank: false, inList: ["Pending", "Rejected", "Granted"])
+        reason(nullable: true)
+    }
+
+    static mapping = {
+        reason(type: 'text')
     }
 }

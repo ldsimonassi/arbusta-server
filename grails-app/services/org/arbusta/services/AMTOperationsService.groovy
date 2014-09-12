@@ -9,12 +9,10 @@ import org.arbusta.domain.HitType
 import grails.transaction.Transactional
 import grails.validation.ValidationException
 import org.arbusta.domain.Worker
-
 import java.sql.Timestamp
 
 @Transactional
 class AMTOperationsService {
-
     static scope = "singleton"
 
     def CreateHIT(request) {
@@ -35,7 +33,7 @@ class AMTOperationsService {
                     requesterAnnotation: request.RequesterAnnotation,
                     lifetimeInSeconds: Long.parseLong(request.LifetimeInSeconds),
                     maxAssignments: Integer.parseInt(request.MaxAssignments),
-                    creationTime: new java.sql.Timestamp(System.currentTimeMillis())
+                    creationTime: new Timestamp(System.currentTimeMillis())
             );
 
             if(!hit.save()) throw new ValidationException("Unable to save Hit ${hit}", hit.errors)
@@ -123,7 +121,7 @@ class AMTOperationsService {
     def CreateQualificationType(request) {
         def q = new QualificationType(
                 name: request.Name, description: request.Description,
-                keywords: request.Keywords, creationTime: new java.sql.Timestamp(System.currentTimeMillis()),
+                keywords: request.Keywords, creationTime: new Timestamp(System.currentTimeMillis()),
                 retryDelayInSeconds: request.RetryDelayInSeconds,
                 qualificationTypeStatus: request.QualificationTypeStatus,
                 test: request.Test, answerKey: request.AnswerKey,
@@ -219,9 +217,21 @@ class AMTOperationsService {
         return null
     }
 
+    def RejectQualificationRequest(request) {
+        def qualifId = Long.parseLong(request.QualificationRequestId)
+        def reason = request.Reason
+
+        def qualificationRequest = QualificationRequest.findById(qualifId)
+
+        qualificationRequest.status = "Rejected"
+        qualificationRequest.reason = reason
+
+        return null
+    }
+
     /**
      * TODO: Implent
-     * RejectQualificationRequest
+     *
      * RevokeQualification
      * UpdateQualificationScore
      * UpdateQualificationType

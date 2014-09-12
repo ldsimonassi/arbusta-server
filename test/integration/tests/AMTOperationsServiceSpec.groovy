@@ -268,10 +268,26 @@ class AMTOperationsServiceSpec extends Specification {
             assert response == null
     }
 
+    def "reject qualification request" () {
+        setup:
+            def request = TestsHelper.loadRequest("CreateQualificationType")
+            def qt = AMTOperationsService.CreateQualificationType(request).QualificationType.QualificationTypeId
+            def qr = TestsHelper.createDummyQualificationRequest(qt)
+            request = TestsHelper.loadRequest("RejectQualificationRequest")
+            request.QualificationRequestId = qr.id.toString()
+        when:
+            def response = AMTOperationsService.RejectQualificationRequest(request)
+        then:
+            assert response == null
+            assert QualificationRequest.findById(Long.parseLong(request.QualificationRequestId)).status == "Rejected"
+            assert QualificationRequest.findById(Long.parseLong(request.QualificationRequestId)).reason == request.Reason
+
+    }
+
     /****************************************************
      * TODO: Implement the following tests:
      *
-     * RejectQualificationRequest
+     *
      * RevokeQualification
      * UpdateQualificationScore
      * UpdateQualificationType
