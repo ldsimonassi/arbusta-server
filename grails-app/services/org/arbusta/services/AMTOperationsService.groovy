@@ -193,9 +193,15 @@ class AMTOperationsService {
         if(!hit.save()) throw new ValidationException("Unable to ExtendHIT ${request}", hit.errors)
         return null
     }
+
+    def ForceExpireHIT(request) {
+        def hit = Hit.findById(Long.parseLong(request.HITId))
+        hit.lifetimeInSeconds = 0
+        if(!hit.save()) throw new ValidationException("Unable to expire HIT: ${request}", hit.errors)
+        return null
+    }
     /**
      * TODO: Implent
-     * ForceExpireHIT
      * SetHITAsReviewing
      * RejectQualificationRequest
      * RevokeQualification

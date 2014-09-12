@@ -214,9 +214,23 @@ class AMTOperationsServiceSpec extends Specification {
 
     }
 
+    def "force expiration of a HIT using ForceExpireHIT"() {
+       setup:
+           // Create Hit
+           def request = TestsHelper.loadRequest("CreateHitWOTypeId")
+           def response = AMTOperationsService.CreateHIT(request)
+           def hitId = response.HITId
+           request = TestsHelper.loadRequest("ForceExpireHIT")
+           request.HITId = hitId
+       when:
+            response = AMTOperationsService.ForceExpireHIT(request)
+      then:
+            assert response == null
+            assert Hit.findById(Long.parseLong(request.HITId)).lifetimeInSeconds == 0
+    }
+
     /****************************************************
      * TODO: Implement the following tests:
-     * ForceExpireHIT
      * SetHITAsReviewing
      * RejectQualificationRequest
      * RevokeQualification
