@@ -200,9 +200,27 @@ class AMTOperationsService {
         if(!hit.save()) throw new ValidationException("Unable to expire HIT: ${request}", hit.errors)
         return null
     }
+
+    def SetHITAsReviewing(request) {
+        def hit = Hit.findById(Long.parseLong(request.HITId))
+        def revert = Boolean.parseBoolean(request.Revert)
+        if(revert) {
+            if(hit.hitStatus == "Reviewing")
+                hit.hitStatus = "Reviewable"
+            else
+                throw new IllegalStateException("Unable to revert status of ${request.HITId} because current status is not Reviewing. Status: ${hit.hitStatus} Request: ${request}")
+        } else {
+            if(hit.hitStatus == "Reviewing")
+                throw new IllegalStateException("Hit is already in the Reviewing status")
+            else
+                hit.hitStatus = "Reviewing"
+        }
+        if(!hit.save()) throw new ValidationException("Unable to change hit status SetHITAsReviewing(${request})", hit.errors)
+        return null
+    }
+
     /**
      * TODO: Implent
-     * SetHITAsReviewing
      * RejectQualificationRequest
      * RevokeQualification
      * UpdateQualificationScore

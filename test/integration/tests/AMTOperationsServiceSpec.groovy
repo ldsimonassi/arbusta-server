@@ -229,9 +229,48 @@ class AMTOperationsServiceSpec extends Specification {
             assert Hit.findById(Long.parseLong(request.HITId)).lifetimeInSeconds == 0
     }
 
+    def "set hit as reviewing" () {
+        setup:
+            // Create temporary Hit
+            def request = TestsHelper.loadRequest("CreateHitWOTypeId")
+            def response = AMTOperationsService.CreateHIT(request)
+            def hitId = response.HITId
+
+            // Prepare SetHITAsReviewing request
+            request = TestsHelper.loadRequest("SetHITAsReviewing")
+            request.HITId = hitId
+            request.Revert = "false"
+        when:
+            response = AMTOperationsService.SetHITAsReviewing(request)
+
+        then:
+            assert Hit.findById(Long.parseLong(hitId)).hitStatus == "Reviewing"
+            assert response == null
+    }
+
+    def "set hit as reviewable" () {
+        setup:
+            // Create temporary Hit
+            def request = TestsHelper.loadRequest("CreateHitWOTypeId")
+            def response = AMTOperationsService.CreateHIT(request)
+            def hitId = response.HITId
+
+            // Prepare SetHITAsReviewing request
+            request = TestsHelper.loadRequest("SetHITAsReviewing")
+            request.HITId = hitId
+            request.Revert = "false"
+            response = AMTOperationsService.SetHITAsReviewing(request)
+            request.Revert = "true"
+        when:
+            response = AMTOperationsService.SetHITAsReviewing(request)
+        then:
+            assert Hit.findById(Long.parseLong(hitId)).hitStatus == "Reviewable"
+            assert response == null
+    }
+
     /****************************************************
      * TODO: Implement the following tests:
-     * SetHITAsReviewing
+     *
      * RejectQualificationRequest
      * RevokeQualification
      * UpdateQualificationScore
