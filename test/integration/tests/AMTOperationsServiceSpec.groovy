@@ -197,7 +197,9 @@ class AMTOperationsServiceSpec extends Specification {
             def request = TestsHelper.loadRequest("CreateHitWOTypeId")
             def response = AMTOperationsService.CreateHIT(request)
             def hitId = response.HITId
-
+            def hit = Hit.findById(Long.parseLong(hitId))
+            def previousLifetimeDuration = hit.lifetimeInSeconds
+            def previousMaxAssignments = hit.maxAssignments
             // Prepare the request to be tested
             request = TestsHelper.loadRequest("ExtendHIT")
             request.HITId = hitId
@@ -205,7 +207,8 @@ class AMTOperationsServiceSpec extends Specification {
             response = AMTOperationsService.ExtendHIT(request)
         then:
             assert response == null
-
+            assert Hit.findById(hitId).maxAssignments == Integer.parseInt(request.MaxAssignmentsIncrement) + previousMaxAssignments
+            assert Hit.findById(hitId).lifetimeInSeconds == Long.parseLong(request.ExpirationIncrementInSeconds) + previousLifetimeDuration
             // Verify increments
             // Hit.findById(Long.parseLong(hitId)).
 
@@ -213,7 +216,6 @@ class AMTOperationsServiceSpec extends Specification {
 
     /****************************************************
      * TODO: Implement the following tests:
-     * ExtendHIT
      * ForceExpireHIT
      * SetHITAsReviewing
      * RejectQualificationRequest

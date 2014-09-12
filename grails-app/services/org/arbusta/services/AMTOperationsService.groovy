@@ -185,15 +185,16 @@ class AMTOperationsService {
     }
 
     def ExtendHIT(request) {
-        //TODO Implement
+        def hit = Hit.findById(Long.parseLong(request.HITId))
 
-        //Load HIT by id
-        //Update fields
-        //Save & check errors
+        hit.maxAssignments += Integer.parseInt(request.MaxAssignmentsIncrement)
+        if(hit.lifetimeInSeconds != null)
+            hit.lifetimeInSeconds += Long.parseLong(request.ExpirationIncrementInSeconds)
+        if(!hit.save()) throw new ValidationException("Unable to ExtendHIT ${request}", hit.errors)
+        return null
     }
     /**
      * TODO: Implent
-     *
      * ForceExpireHIT
      * SetHITAsReviewing
      * RejectQualificationRequest
