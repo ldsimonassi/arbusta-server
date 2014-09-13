@@ -1,0 +1,11 @@
+<Request>
+    <QualificationTypeId>?</QualificationTypeId>
+    <Description>?</Description>
+    <QualificationTypeStatus>?</QualificationTypeStatus>
+    <Test>?</Test>
+    <AnswerKey>?</AnswerKey>
+    <TestDurationInSeconds>?</TestDurationInSeconds>
+    <RetryDelayInSeconds>?</RetryDelayInSeconds>
+    <AutoGranted>?</AutoGranted>
+    <AutoGrantedValue>?</AutoGrantedValue>
+</Request>

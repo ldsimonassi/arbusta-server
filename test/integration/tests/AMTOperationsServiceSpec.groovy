@@ -1,8 +1,11 @@
 package tests
 
+import grails.validation.ValidationException
 import spock.lang.*
 import org.arbusta.domain.*
 import org.arbusta.services.AMTOperationsService
+
+import java.sql.Timestamp
 
 class AMTOperationsServiceSpec extends Specification {
     def AMTOperationsService
@@ -339,6 +342,104 @@ class AMTOperationsServiceSpec extends Specification {
             assert response == null
             assert QualificationAssignment.findByWorkerAndQualificationType(worker, qualificationType).integerValue == Integer.parseInt(request.IntegerValue)
     }
+
+    def worker;
+    def qualificationTypes
+
+    // Populate the database
+    def setup () {
+        worker = TestsHelper.createDummyWorker()
+
+        qualificationTypes = [:]
+
+        qualificationTypes.english =
+                new QualificationType(
+                            creationTime: new Timestamp(System.currentTimeMillis()),
+                            name: "English language",
+                            description: "Knowledge to read/write and listen the english language",
+                            keywords: "language, english",
+                            qualificationTypeStatus: "Active",
+                            retryDelayInSeconds: (3600*24*7),
+                            test: "Write the result of: How much is two plus two?",
+                            testDurationInSeconds: 300,
+                            answerKey: "two",
+                            autoGranted: false,
+                            isRequestable: true,
+                            autoGrantedValue: null)
+
+        qualificationTypes["english"] =
+                new QualificationType(
+                        creationTime: new Timestamp(System.currentTimeMillis()),
+                        name: "English language",
+                        description: "Knowledge to read/write and listen the english language",
+                        keywords: "language, english, writing",
+                        qualificationTypeStatus: "Active",
+                        retryDelayInSeconds: (3600*24*7),
+                        test: "Write the result of: How much is two plus two?",
+                        testDurationInSeconds: 300,
+                        answerKey: "two",
+                        autoGranted: false,
+                        isRequestable: true,
+                        autoGrantedValue: null)
+
+        qualificationTypes["math"] =
+                new QualificationType(
+                        creationTime: new Timestamp(System.currentTimeMillis()),
+                        name: "Basic mathematics",
+                        description: "Knowledge on basic arithmetic operations",
+                        keywords: "mathematics, algebra, basic",
+                        qualificationTypeStatus: "Active",
+                        retryDelayInSeconds: (3600*24*7),
+                        test: "(2+3+5)/(2*1)",
+                        testDurationInSeconds: 20,
+                        answerKey: "5",
+                        autoGranted: false,
+                        isRequestable: true,
+                        autoGrantedValue: null)
+
+        qualificationTypes["trusted_worker"] =
+                new QualificationType(
+                        creationTime: new Timestamp(System.currentTimeMillis()),
+                        name: "Trusted worker 1st degree",
+                        description: "Based on your work history, we bealive you'll continue to work fine",
+                        keywords: "reputation, relationship",
+                        qualificationTypeStatus: "Active",
+                        retryDelayInSeconds: (3600*24*7),
+                        test: null,
+                        testDurationInSeconds: 0,
+                        answerKey: null,
+                        autoGranted: false,
+                        isRequestable: false,
+                        autoGrantedValue: null)
+
+
+        qualificationTypes.keySet().each { key ->
+            if(!qualificationTypes[key].save())
+                throw new ValidationException("Unable to save $key", qualificationTypes[key].errors)
+        }
+
+    }
+
+//    def "update the parameters of a given qualification type" () {
+  //      setup:
+            // Create dummy qualification type
+            // Prepare update request
+            // UpdateQualificationType
+            //  QualificationTypeId
+            //  Description
+            //  QualificationTypeStatus
+            //  Test
+            //  AnswerKey
+            //  TestDurationInSeconds
+            //  RetryDelayInSeconds
+            //  AutoGranted
+            //  AutoGrantedValue
+
+    //    when:
+            // Excecute update
+      //  then:
+            // Assert changes have been successful
+    //}
 
     /****************************************************
      * TODO: Implement the following tests:

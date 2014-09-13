@@ -269,5 +269,6 @@ class AMTOperationsService {
 
     def UpdateQualificationType(request) {
         // TODO Implement
+
     }
 }
