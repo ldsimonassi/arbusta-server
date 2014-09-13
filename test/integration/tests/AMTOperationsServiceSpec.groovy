@@ -309,15 +309,39 @@ class AMTOperationsServiceSpec extends Specification {
             // Assert null response
             assert response == null
             // Assert no qualification assigned
-            assert QualificationAssignment.findByWorkerAndQualificationType(worker, qualificationType, [lock: true]) == null
+            assert QualificationAssignment.findByWorkerAndQualificationType(worker, qualificationType) == null
+    }
+
+
+    def "update worker qualification score for a given qualification type" () {
+        setup:
+            // Create qualification type
+            def request = TestsHelper.loadRequest("CreateQualificationType")
+            def qualificationTypeId = AMTOperationsService.CreateQualificationType(request).QualificationType.QualificationTypeId
+            def qualificationType = QualificationType.findById(Long.parseLong(qualificationTypeId))
+            def qualificationRequest = TestsHelper.createDummyQualificationRequest(qualificationTypeId)
+            def worker = qualificationRequest.worker
+            // Grant qualification
+            request = TestsHelper.loadRequest("GrantQualification")
+            request.QualificationRequestId = qualificationRequest.id.toString()
+            AMTOperationsService.GrantQualification(request)
+
+            // Assert that the qualification has been granted
+            assert QualificationAssignment.findByWorkerAndQualificationType(worker, qualificationType, [lock: true]) != null
+
+            // Prepare update qualification request
+            request = TestsHelper.loadRequest("UpdateQualificationScore")
+            request.QualificationTypeId = qualificationTypeId
+            request.SubjectId = worker.id.toString()
+        when:
+            def response = AMTOperationsService.UpdateQualificationScore(request)
+        then:
+            assert response == null
+            assert QualificationAssignment.findByWorkerAndQualificationType(worker, qualificationType).integerValue == Integer.parseInt(request.IntegerValue)
     }
 
     /****************************************************
      * TODO: Implement the following tests:
-     *
-     *
-     * RevokeQualification
-     * UpdateQualificationScore
      * UpdateQualificationType
      ***************************************************/
 

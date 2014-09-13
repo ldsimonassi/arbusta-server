@@ -249,7 +249,22 @@ class AMTOperationsService {
     }
 
     def UpdateQualificationScore(request) {
-        // TODO Implement
+        def qualificationType = QualificationType.findById(Long.parseLong(request.QualificationTypeId))
+        def worker = Worker.findById(Long.parseLong(request.SubjectId))
+        def integerValue = Integer.parseInt(request.IntegerValue)
+
+        if(!qualificationType) throw new IllegalArgumentException("QualificationType does not exist Request:${request}")
+        if(!worker) throw new IllegalArgumentException("Worker does not exists Request: ${request}")
+
+        def qualificationAssignment = QualificationAssignment.findByWorkerAndQualificationType(worker, qualificationType, [lock: true])
+
+        if(!qualificationAssignment) throw new IllegalArgumentException("There is no granted qualification for $worker and $qualificationType")
+
+        qualificationAssignment.integerValue = integerValue
+
+        if(!qualificationAssignment.save()) throw new ValidationException("Unable to update qualification ${request}", qualificationAssignment.errors)
+
+        return null
     }
 
     def UpdateQualificationType(request) {
