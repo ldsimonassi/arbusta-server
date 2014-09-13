@@ -284,6 +284,34 @@ class AMTOperationsServiceSpec extends Specification {
 
     }
 
+    def "revoke qualification" () {
+        setup:
+            // Create qualification type
+            def request = TestsHelper.loadRequest("CreateQualificationType")
+            def qualificationTypeId = AMTOperationsService.CreateQualificationType(request).QualificationType.QualificationTypeId
+            def qualificationType = QualificationType.findById(Long.parseLong(qualificationTypeId))
+            def qualificationRequest = TestsHelper.createDummyQualificationRequest(qualificationTypeId)
+            def worker = qualificationRequest.worker
+            // Grant qualification
+            request = TestsHelper.loadRequest("GrantQualification")
+            request.QualificationRequestId = qualificationRequest.id.toString()
+            AMTOperationsService.GrantQualification(request)
+            assert QualificationAssignment.findByWorkerAndQualificationType(worker, qualificationType, [lock: true]) != null
+            // Prepare revoke
+            request = TestsHelper.loadRequest("RevokeQualification")
+            request.SubjectId = worker.id.toString()
+            request.QualificationTypeId = qualificationTypeId
+            request.Reason = "We don't know"
+        when:
+            // Revoke qualification
+            def response = AMTOperationsService.RevokeQualification(request)
+        then:
+            // Assert null response
+            assert response == null
+            // Assert no qualification assigned
+            assert QualificationAssignment.findByWorkerAndQualificationType(worker, qualificationType, [lock: true]) == null
+    }
+
     /****************************************************
      * TODO: Implement the following tests:
      *

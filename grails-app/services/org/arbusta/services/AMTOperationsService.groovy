@@ -133,8 +133,8 @@ class AMTOperationsService {
 
         def ret = [:]
         ret.QualificationType = [:]
-        ret.QualificationType.QualificationTypeId = q.id
-        ret.QualificationType.CreationTime = q.creationTime
+        ret.QualificationType.QualificationTypeId = q.id.toString()
+        ret.QualificationType.CreationTime = q.creationTime.toString()
         ret.QualificationType.Name = q.name
         ret.QualificationType.Description = q.description
         ret.QualificationType.QualificationTypeStatus = q.qualificationTypeStatus
@@ -150,7 +150,8 @@ class AMTOperationsService {
                                     worker: worker,
                                     qualificationType: qt,
                                     integerValue: Integer.parseInt(request.IntegerValue),
-                                    sendNotification: request.SendNotification)
+                                    sendNotification: request.SendNotification,
+                                    request: null)
 
         if(!qa.save()) throw new ValidationException("Unable to save QualificationAssignment ${request}", qa.errors)
         return null
@@ -158,11 +159,11 @@ class AMTOperationsService {
 
     def GrantQualification(request) {
         def qRequest = QualificationRequest.findById(Long.parseLong(request.QualificationRequestId))
-        def qa = new QualificationAssignment(worker: qRequest.worker, qualificationType: qRequest.qualificationType, integerValue: Integer.parseInt(request.IntegerValue), sendNotification: "true")
+        def qa = new QualificationAssignment(worker: qRequest.worker, qualificationType: qRequest.qualificationType, integerValue: Integer.parseInt(request.IntegerValue), sendNotification: "true", request: qRequest)
 
         if(!qa.save()) throw new ValidationException("Unable to create QualificationAssignment as part of the GrantQualificationRequest for ${request}", qa.errors)
         qRequest.assignment = qa
-        if(!qRequest.save()) throw new javax.xml.bind.ValidationException("Unable to link assignment to request", qRequest.errors)
+        if(!qRequest.save()) throw new ValidationException("Unable to link assignment to request", qRequest.errors)
 
         return null
     }
@@ -229,11 +230,29 @@ class AMTOperationsService {
         return null
     }
 
-    /**
-     * TODO: Implent
-     *
-     * RevokeQualification
-     * UpdateQualificationScore
-     * UpdateQualificationType
-     */
+    def RevokeQualification(request) {
+        def worker = Worker.findById(Long.parseLong(request.SubjectId))
+        def qualificationType = QualificationType.findById(Long.parseLong(request.QualificationTypeId))
+        def qualificationAssignment = QualificationAssignment.findByWorkerAndQualificationType(worker, qualificationType, [lock: true])
+
+        if (!qualificationAssignment)
+            throw new IllegalArgumentException("No qualificationAssignment found for Worker:${worker} QualificationType:${qualificationType} Request: ${Rquest}")
+
+        if (qualificationAssignment.request) {
+            qualificationAssignment.request.reason = request.Reason
+            qualificationAssignment.request.status = "Rejected"
+            qualificationAssignment.request.assignment = null
+            qualificationAssignment.request.save()
+        }
+        qualificationAssignment.delete()
+        return null
+    }
+
+    def UpdateQualificationScore(request) {
+        // TODO Implement
+    }
+
+    def UpdateQualificationType(request) {
+        // TODO Implement
+    }
 }

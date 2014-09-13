@@ -1,0 +1,6 @@
+<Request>
+    <SubjectId>?</SubjectId>
+    <QualificationTypeId>?</QualificationTypeId>
+    <!--Optional:-->
+    <Reason>We don't want you to have it</Reason>
+</Request>
