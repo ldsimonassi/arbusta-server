@@ -343,29 +343,34 @@ class AMTOperationsServiceSpec extends Specification {
             assert QualificationAssignment.findByWorkerAndQualificationType(worker, qualificationType).integerValue == Integer.parseInt(request.IntegerValue)
     }
 
-    def worker;
-    def qualificationTypes
+    def workers = [:]
+    def qualificationTypes = [:]
+    def qualificationRequests = [:]
+
+
+    def cleanup() {
+        println "Cleaning up"
+    }
 
     // Populate the database
     def setup () {
-        worker = TestsHelper.createDummyWorker()
+        workers.dario = new Worker(
+                firstName: "Luis Dario",
+                lastName: "Simonassi",
+                email: "dario@arbusta.com"
+        )
 
-        qualificationTypes = [:]
+        workers.jagger = new Worker(
+                firstName: "Michael",
+                lastName: "Jagger",
+                email: "michael.jagger@rollingstones.com"
+        )
 
-        qualificationTypes.english =
-                new QualificationType(
-                            creationTime: new Timestamp(System.currentTimeMillis()),
-                            name: "English language",
-                            description: "Knowledge to read/write and listen the english language",
-                            keywords: "language, english",
-                            qualificationTypeStatus: "Active",
-                            retryDelayInSeconds: (3600*24*7),
-                            test: "Write the result of: How much is two plus two?",
-                            testDurationInSeconds: 300,
-                            answerKey: "two",
-                            autoGranted: false,
-                            isRequestable: true,
-                            autoGrantedValue: null)
+        workers.paul = new Worker(
+                firstName: "Paul",
+                lastName: "McCartney",
+                email: "paul@beatles.com"
+        )
 
         qualificationTypes["english"] =
                 new QualificationType(
@@ -412,15 +417,55 @@ class AMTOperationsServiceSpec extends Specification {
                         isRequestable: false,
                         autoGrantedValue: null)
 
+        qualificationTypes["guitar"] =
+                new QualificationType(
+                        creationTime: new Timestamp(System.currentTimeMillis()),
+                        name: "Guitar abilities required",
+                        description: "We need you to be a rockstar playing the guitar",
+                        keywords: "music, guitar, rock",
+                        qualificationTypeStatus: "Active",
+                        retryDelayInSeconds: (3600*24*7),
+                        test: "Play these notes with your guitar",
+                        testDurationInSeconds: 3600,
+                        answerKey: "Upload the audio",
+                        autoGranted: false,
+                        isRequestable: false,
+                        autoGrantedValue: null)
 
-        qualificationTypes.keySet().each { key ->
-            if(!qualificationTypes[key].save())
-                throw new ValidationException("Unable to save $key", qualificationTypes[key].errors)
+
+        qualificationRequests["dario_english"] = new QualificationRequest(
+                worker: workers["dario"],
+                qualificationType: qualificationTypes["english"],
+                test: "Write the result of: How much is two plus two?",
+                answer: "four",
+                submitTime: new Timestamp(System.currentTimeMillis()),
+                assignment: null,
+                status: "Pending",
+                reason: null
+        )
+
+        qualificationRequests["paul_guitar"] = new QualificationRequest(
+                worker: workers["paul"],
+                qualificationType: qualificationTypes["guitar"],
+                test: "Play these notes with your guitar",
+                answer: "Sound uploaded",
+                submitTime: new Timestamp(System.currentTimeMillis()),
+                assignment: null,
+                status: "Pending",
+                reason: null
+        )
+
+        [workers, qualificationTypes, qualificationRequests].each { toSave ->
+            toSave.keySet().each { key ->
+                if (!toSave[key].save())
+                    throw new ValidationException("Unable to save $key", toSave[key].errors)
+            }
         }
-
     }
 
 //    def "update the parameters of a given qualification type" () {
+
+  //@Unroll("wee #a #b")
   //      setup:
             // Create dummy qualification type
             // Prepare update request
