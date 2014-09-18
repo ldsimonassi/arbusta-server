@@ -20,7 +20,6 @@ class AMTOperationsService {
 
         // Detect when HitTypeID is missing and create one
         if(request.HITTypeId == null) {
-            println "No hit type registered, registering..."
             response = RegisterHITType(request)
             request.HITTypeId = response.RegisterHITTypeResult.HITTypeId
         }
@@ -80,31 +79,30 @@ class AMTOperationsService {
 
         if (qr != null) {
             if (!(qr instanceof List)) {
-                println "Is NOT a list"
                 list = []
                 list.add(qr)
             } else {
-                println "Is a list"
                 list = qr
             }
 
-            println "List: [${list}]"
-
             list.each() { qReq ->
-                println "Element: [${qReq}]"
                 try {
-                    def qt = QualificationType.findById(Long.parseLong(qReq."QualificationTypeId"))
+                    def qt = QualificationType.findById(Long.parseLong(qReq.QualificationTypeId))
+
+                    if(!qt)
+                        throw new IllegalArgumentException("Undefined qualification type ${qReq.QualificationTypeId}")
+
                     def q = new QualificationRequirement(
-                            qualificationType: qReq.QualificationTypeId,
+                            qualificationType: qt,
                             comparator: qReq.Comparator,
                             integerValue: Integer.parseInt(qReq.IntegerValue))
+
                     type.addToQualificationRequirements(q)
+
                 } catch (e) {
                     throw new Exception("Error while trying to create QualificationRequirement [" + qReq + "]", e)
                 }
             }
-        } else {
-            println "QR is null"
         }
 
         if(!type.save())

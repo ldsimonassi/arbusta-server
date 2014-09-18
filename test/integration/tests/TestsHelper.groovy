@@ -20,7 +20,6 @@ class TestsHelper {
     static def loadRequest(id) {
         def xml = IOUtils.createXmlSlurper().parse(new File("./test/integration/examples/${id}.xml"))
         def ret = XmlHelper.hashBuilder(xml)
-        println "loadRequest:[${id}] [${ret}]"
         return ret
     }
 
