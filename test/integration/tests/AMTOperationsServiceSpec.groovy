@@ -192,8 +192,8 @@ class AMTOperationsServiceSpec extends Specification {
             qualifications[0].qualificationType.id == qt2.id || qualifications[1].qualificationType.id == qt2.id
         where:
             qt1 | qt2
-            qualificationTypes["guitar"] |  qualificationTypes["english"]
-            qualificationTypes["math"] |  qualificationTypes["trusted_worker"]
+            qualificationTypes.guitar |  qualificationTypes.english
+            qualificationTypes.math |  qualificationTypes.trusted_worker
     }
 
 
@@ -204,85 +204,103 @@ class AMTOperationsServiceSpec extends Specification {
         when:
             def response = AMTOperationsService.CreateHIT(request)
         then:
-            assert response != null
-            assert response.HITId != null
-            assert response.HITTypeId != null
-            assert response.CreationTime != null
-            assert response.Title == request.Title
-            assert response.Description == request.Description
-            assert response.Question != null
-            assert response.MaxAssignments.toString() == request.MaxAssignments
-            assert response.AutoApprovalDelayInSeconds.toString() == request.AutoApprovalDelayInSeconds
-            assert response.LifetimeInSeconds.toString() == request.LifetimeInSeconds
-            assert response.AssignmentDurationInSeconds.toString() == request.AssignmentDurationInSeconds
-            assert response.Reward.Amount.toString() == request.Reward.Amount
+            response != null
+            response.HITId != null
+            response.HITTypeId != null
+            response.CreationTime != null
+            response.Title == request.Title
+            response.Description == request.Description
+            response.Question != null
+            response.MaxAssignments.toString() == request.MaxAssignments
+            response.AutoApprovalDelayInSeconds.toString() == request.AutoApprovalDelayInSeconds
+            response.LifetimeInSeconds.toString() == request.LifetimeInSeconds
+            response.AssignmentDurationInSeconds.toString() == request.AssignmentDurationInSeconds
+            response.Reward.Amount.toString() == request.Reward.Amount
+            // TODO Check Database
     }
 
-    
     def "create complex hit with hit_type" () {
         setup:
-            def request
-            def response
-
             //Register Hit Type
-            request = TestsHelper.loadRequest("RegisterHITType")
+            def request = TestsHelper.loadRequest("RegisterHITType")
             request.QualificationRequirement = null
-            response = AMTOperationsService.RegisterHITType(request)
-
+            def response = AMTOperationsService.RegisterHITType(request)
             def hitTypeId = response.RegisterHITTypeResult.HITTypeId
             //Prepare CreateHitRequest
             request = TestsHelper.loadRequest("CreateHitWTypeId")
             request.HITTypeId = hitTypeId
-
         when:
             response = AMTOperationsService.CreateHIT(request)
-            println "Hit Created response :[${response}]"
         then:
-            assert response != null
-            assert response.HITId != null
-            assert response.HITTypeId != null
-            assert response.CreationTime != null
-            assert response.Question != null
-            assert response.MaxAssignments.toString() == request.MaxAssignments
-            assert response.LifetimeInSeconds.toString() == request.LifetimeInSeconds
+            // Assert response data
+            response != null
+            response.HITId != null
+            response.HITTypeId != null
+            response.CreationTime != null
+            response.Question != null
+            response.MaxAssignments.toString() == request.MaxAssignments
+            response.LifetimeInSeconds.toString() == request.LifetimeInSeconds
+            // Assert database data
+            def hit = Hit.findById(Long.parseLong(response.HITId))
+            hit != null
+            hit.id.toString() == response.HITId
+            hit.hitType.id.toString() == hitTypeId
+            hit.question == request.Question
+            hit.lifetimeInSeconds.toString() == request.LifetimeInSeconds
+            hit.maxAssignments.toString() == request.MaxAssignments
     }
 
-
-    
+    @Unroll("Assign qualification [#qt.name] to worker [#worker.firstName #worker.lastName]")
     def "assign qualification to worker" () {
         setup:
-            def qTypeId = AMTOperationsService.CreateQualificationType(TestsHelper.loadRequest("CreateQualificationType")).QualificationType.QualificationTypeId
-            def worker = TestsHelper.createDummyWorker()
             def request = TestsHelper.loadRequest("AssignQualification")
             // Override dynamic fields
-            request.QualificationTypeId = qTypeId.toString()
+            request.QualificationTypeId = qt.id.toString()
             request.WorkerId = worker.id.toString()
         when:
             // Assign qualification to worker.
             def response = AMTOperationsService.AssignQualification(request)
         then:
-            //assert workerId != null
-            assert qTypeId != null
-            assert request != null
-            assert response == null
-
-            // TODO Add domain related assertions.
+            // Assert response data
+            response == null
+            // Assert database data
+            def qa = QualificationAssignment.findByWorkerAndQualificationType(worker, qt)
+            qa != null
+            qa.request == null
+            qa.integerValue.toString() == request.IntegerValue
+            qa.sendNotification.toString() == request.SendNotification
+        where:
+            qt | worker
+            qualificationTypes.guitar | workers.jagger
+            qualificationTypes.english | workers.jagger
+            qualificationTypes.guitar | workers.paul
+            qualificationTypes.english | workers.paul
+            qualificationTypes.math | workers.dario
+            qualificationTypes.trusted_worker | workers.dario
     }
 
-
-    
+    @Unroll("grant qualification #qr.name to #worker.firstName #worker.lastName")
     def "grant qualification to a worker" () {
         setup:
-            def request = TestsHelper.loadRequest("CreateQualificationType")
-            def qt = AMTOperationsService.CreateQualificationType(request).QualificationType.QualificationTypeId
-            def qr = TestsHelper.createDummyQualificationRequest(qt)
-            request = TestsHelper.loadRequest("GrantQualification")
-            request.QualificationRequestId = "${qr.id}"
+            def qr = TestsHelper.createDummyQualificationRequest(worker, qt)
+            def request = TestsHelper.loadRequest("GrantQualification")
+            request.QualificationRequestId = qr.id.toString()
         when:
             def response = AMTOperationsService.GrantQualification(request)
         then:
             assert response == null
             qr.assignment != null
+            def assignment = QualificationAssignment.findByRequest(qr)
+            assignment.qualificationType.id == qt.id
+            assignment.worker.id == worker.id
+            assignment.integerValue.toString() == request.IntegerValue
+        where:
+            worker | qt
+            workers.jagger | qualificationTypes.english
+            workers.jagger | qualificationTypes.guitar
+            workers.paul | qualificationTypes.english
+            workers.paul | qualificationTypes.guitar
+            workers.dario | qualificationTypes.math
     }
 
     
@@ -391,79 +409,96 @@ class AMTOperationsServiceSpec extends Specification {
             assert response == null
     }
 
-    
+
+    @Unroll("Rejecting #qt.name to #worker.firstName #worker.lastName")
     def "reject qualification request" () {
         setup:
-            def request = TestsHelper.loadRequest("CreateQualificationType")
-            def qt = AMTOperationsService.CreateQualificationType(request).QualificationType.QualificationTypeId
-            def qr = TestsHelper.createDummyQualificationRequest(qt)
-            request = TestsHelper.loadRequest("RejectQualificationRequest")
+            def qr = TestsHelper.createDummyQualificationRequest(worker, qt)
+            def request = TestsHelper.loadRequest("RejectQualificationRequest")
             request.QualificationRequestId = qr.id.toString()
         when:
             def response = AMTOperationsService.RejectQualificationRequest(request)
         then:
-            assert response == null
-            assert QualificationRequest.findById(Long.parseLong(request.QualificationRequestId)).status == "Rejected"
-            assert QualificationRequest.findById(Long.parseLong(request.QualificationRequestId)).reason == request.Reason
-
+            response == null
+            def qr2 = QualificationRequest.findById(Long.parseLong(request.QualificationRequestId))
+            qr2.status == "Rejected"
+            qr2.reason == request.Reason
+        where:
+            worker | qt
+            workers.jagger | qualificationTypes.english
+            workers.jagger | qualificationTypes.guitar
+            workers.paul | qualificationTypes.english
+            workers.paul | qualificationTypes.guitar
+            workers.dario | qualificationTypes.math
     }
 
-    
+    @Unroll("revoke qualification #qt.name to #worker.firstName #worker.lastName")
     def "revoke qualification" () {
         setup:
-            // Create qualification type
-            def request = TestsHelper.loadRequest("CreateQualificationType")
-            def qualificationTypeId = AMTOperationsService.CreateQualificationType(request).QualificationType.QualificationTypeId
-            def qualificationType = QualificationType.findById(Long.parseLong(qualificationTypeId))
-            def qualificationRequest = TestsHelper.createDummyQualificationRequest(qualificationTypeId)
-            def worker = qualificationRequest.worker
+            // Create qualification request
+            def qr = TestsHelper.createDummyQualificationRequest(worker, qt)
             // Grant qualification
-            request = TestsHelper.loadRequest("GrantQualification")
-            request.QualificationRequestId = qualificationRequest.id.toString()
+            def request = TestsHelper.loadRequest("GrantQualification")
+            request.QualificationRequestId = qr.id.toString()
             AMTOperationsService.GrantQualification(request)
-            assert QualificationAssignment.findByWorkerAndQualificationType(worker, qualificationType, [lock: true]) != null
+            assert QualificationAssignment.findByWorkerAndQualificationType(worker, qt, [lock: true]) != null
+
             // Prepare revoke
             request = TestsHelper.loadRequest("RevokeQualification")
             request.SubjectId = worker.id.toString()
-            request.QualificationTypeId = qualificationTypeId
+            request.QualificationTypeId = qr.qualificationType.id.toString()
             request.Reason = "We don't know"
         when:
             // Revoke qualification
             def response = AMTOperationsService.RevokeQualification(request)
         then:
             // Assert null response
-            assert response == null
+            response == null
             // Assert no qualification assigned
-            assert QualificationAssignment.findByWorkerAndQualificationType(worker, qualificationType) == null
+            QualificationAssignment.findByWorkerAndQualificationType(worker, qt) == null
+            def qr2 = QualificationRequest.findById(qr.id)
+            qr2.reason == request.Reason
+            qr2.status == "Rejected"
+        where:
+            worker | qt
+            workers.jagger | qualificationTypes.english
+            workers.jagger | qualificationTypes.guitar
+            workers.paul | qualificationTypes.english
+            workers.paul | qualificationTypes.guitar
+            workers.dario | qualificationTypes.math
     }
 
-
-    
+    @Unroll("update #worker.firstName #worker.lastName qualification score for #qt.name to #integerValue")
     def "update worker qualification score for a given qualification type" () {
         setup:
             // Create qualification type
-            def request = TestsHelper.loadRequest("CreateQualificationType")
-            def qualificationTypeId = AMTOperationsService.CreateQualificationType(request).QualificationType.QualificationTypeId
-            def qualificationType = QualificationType.findById(Long.parseLong(qualificationTypeId))
-            def qualificationRequest = TestsHelper.createDummyQualificationRequest(qualificationTypeId)
-            def worker = qualificationRequest.worker
+            def qualificationRequest = TestsHelper.createDummyQualificationRequest(worker, qt)
+
             // Grant qualification
-            request = TestsHelper.loadRequest("GrantQualification")
+            def request = TestsHelper.loadRequest("GrantQualification")
             request.QualificationRequestId = qualificationRequest.id.toString()
             AMTOperationsService.GrantQualification(request)
 
             // Assert that the qualification has been granted
-            assert QualificationAssignment.findByWorkerAndQualificationType(worker, qualificationType, [lock: true]) != null
+            assert QualificationAssignment.findByWorkerAndQualificationType(worker, qt, [lock: true]) != null
 
             // Prepare update qualification request
             request = TestsHelper.loadRequest("UpdateQualificationScore")
-            request.QualificationTypeId = qualificationTypeId
+            request.QualificationTypeId = qt.id.toString()
             request.SubjectId = worker.id.toString()
+            request.IntegerValue = integerValue.toString()
         when:
             def response = AMTOperationsService.UpdateQualificationScore(request)
         then:
-            assert response == null
-            assert QualificationAssignment.findByWorkerAndQualificationType(worker, qualificationType).integerValue == Integer.parseInt(request.IntegerValue)
+            response == null
+            QualificationAssignment.findByWorkerAndQualificationType(worker, qt).integerValue == integerValue
+        where:
+            worker | qt | integerValue
+            workers.jagger | qualificationTypes.english | 9
+            workers.jagger | qualificationTypes.guitar | 9
+            workers.paul | qualificationTypes.english | 9
+            workers.paul | qualificationTypes.guitar  | 9
+            workers.dario | qualificationTypes.math | 5
     }
 
 

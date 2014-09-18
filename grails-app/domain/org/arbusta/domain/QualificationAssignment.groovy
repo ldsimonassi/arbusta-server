@@ -18,5 +18,6 @@ class QualificationAssignment {
     static mapping = {
         worker index: 'worker_qualification_type_index'
         qualificationType index: 'worker_qualification_type_index'
+        request index: 'request_qualification_type_index'
     }
 }

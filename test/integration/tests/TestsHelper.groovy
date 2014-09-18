@@ -30,8 +30,7 @@ class TestsHelper {
         return worker
     }
 
-    static def createDummyQualificationRequest(qualificationType) {
-        def worker = createDummyWorker()
+    static def createDummyQualificationRequest(worker, qualificationType) {
         def qr = new QualificationRequest(worker:worker, qualificationType: qualificationType, test: "The test", answer: "The answer", submitTime: new java.sql.Timestamp(System.currentTimeMillis()), assignment: null)
         if(!qr.save()) throw new ValidationException("Unable to create a dummy Qualification Request", qr.errors)
         return qr
