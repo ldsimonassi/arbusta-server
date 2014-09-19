@@ -63,7 +63,6 @@ class AMTOperationsService {
             response.AssignmentDurationInSeconds = hit.hitType.assignmentDurationInSeconds.toString()
             response.MaxAssignments = hit.maxAssignments.toString()
             response.AutoApprovalDelayInSeconds = hit.hitType.autoApprovalDelayInSeconds.toString()
-            //response.QualificationRequirement
 
             return response
         }
@@ -280,7 +279,48 @@ class AMTOperationsService {
     }
 
     def UpdateQualificationType(request) {
-        // TODO Implement
+        def qt = QualificationType.findById(Long.parseLong(request.QualificationTypeId))
+        if(qt == null) throw new IllegalArgumentException("QualificationType not found ${request.QualificationTypeId} on request [${request}]")
 
+        if(request.Description)
+            qt.description = request.Description
+
+        if(request.QualificationTypeStatus)
+            qt.qualificationTypeStatus = request.QualificationTypeStatus
+
+        if(request.Test)
+            qt.test = request.Test
+
+        if(request.AnswerKey)
+            qt.answerKey = request.AnswerKey
+
+        if(request.TestDurationInSeconds)
+            qt.testDurationInSeconds = Long.parseLong(request.TestDurationInSeconds)
+
+        if(request.RetryDelayInSeconds)
+            qt.retryDelayInSeconds = Long.parseLong(request.RetryDelayInSeconds)
+
+        if(request.AutoGranted)
+            qt.autoGranted = Boolean.parseBoolean(request.AutoGranted)
+
+        if(request.AutoGrantedValue)
+            qt.autoGrantedValue = Integer.parseInt(request.AutoGrantedValue)
+
+        if(!qt.save(flush:true)) throw new ValidationException("Error while saving QualificationType ${request}", qt.errors)
+
+        def response = [:]
+
+        response.QualificationType = [:]
+
+        response.QualificationType.QualificationTypeId = qt.id.toString()
+        response.QualificationType.CreationTime = qt.creationTime.toString()
+        response.QualificationType.Name = qt.name
+        response.QualificationType.Description = qt.description
+        response.QualificationType.Keywords = qt.keywords
+        response.QualificationType.QualificationTypeStatus = qt.qualificationTypeStatus
+        response.QualificationType.RetryDelayInSeconds = qt.retryDelayInSeconds.toString()
+        response.QualificationType.IsRequestable = qt.isRequestable.toString()
+
+        return response
     }
 }

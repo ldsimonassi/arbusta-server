@@ -29,7 +29,7 @@ class QualificationType {
         name(nullable: true, blank:true, size: 0..200)
         description(nullable: true, blank:true, size: 0..2000)
         keywords(nullable: true, blank:true, size: 0..1000)
-        qualificationTypeStatus(nullable: false, blank: false, inList: ["Active", "Inactive"], size: 6..8)
+        qualificationTypeStatus(nullable: false, blank: false, inList: ["Active", "Inactive"], size: 5..10)
         retryDelayInSeconds(nullable: true, range: 1..Integer.MAX_VALUE)
         test(nullable: true, size: 0..65535)
         testDurationInSeconds(nullable: true, range: 0..Integer.MAX_VALUE)

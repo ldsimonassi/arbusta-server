@@ -525,33 +525,53 @@ class AMTOperationsServiceSpec extends Specification {
             workers.dario | qualificationTypes.math | 5
     }
 
+    @Unroll("update the parameters of a given qualification type qt:#qt.name description:#description qualificationTypeStatus:#qualificationTypeStatus test:#test answerKey:#answerKey testDurationInSeconds:#testDurationInSeconds retryDelayInSeconds:#retryDelayInSeconds autoGranted:#autoGranted autoGrantedValue:#autoGrantedValue")
+    def "update the parameters of a given qualification type" () {
+        setup:
+            def request = loadRequest("UpdateQualificationType")
+            request.QualificationTypeId = qt_ref.id.toString()
+            request.Description = description
+            request.QualificationTypeStatus = qualificationTypeStatus
+            request.Test = test
+            request.AnswerKey = answerKey
+            request.TestDurationInSeconds = testDurationInSeconds
+            request.RetryDelayInSeconds = retryDelayInSeconds
+            request.AutoGranted = autoGranted
+            request.AutoGrantedValue = autoGrantedValue
+        when:
+            def response = AMTOperationsService.UpdateQualificationType(request)
 
-//    def "update the parameters of a given qualification type" () {
+        then:
+            def qt = QualificationType.findById(qt_ref.id)
 
-  //@Unroll("wee #a #b")
-  //      setup:
-            // Create dummy qualification type
-            // Prepare update request
-            // UpdateQualificationType
-            //  QualificationTypeId
-            //  Description
-            //  QualificationTypeStatus
-            //  Test
-            //  AnswerKey
-            //  TestDurationInSeconds
-            //  RetryDelayInSeconds
-            //  AutoGranted
-            //  AutoGrantedValue
+            // Assert response data
+            response.QualificationType.QualificationTypeId == request.QualificationTypeId
+            response.QualificationType.CreationTime != null
+            response.QualificationType.Name == qt.name
+            response.QualificationType.Description == qt.description
+            response.QualificationType.Keywords == qt.keywords
+            response.QualificationType.QualificationTypeStatus == qt.qualificationTypeStatus
+            response.QualificationType.RetryDelayInSeconds == qt.retryDelayInSeconds.toString()
+            response.QualificationType.IsRequestable == qt.isRequestable.toString()
 
-    //    when:
-            // Excecute update
-      //  then:
-            // Assert changes have been successful
-    //}
-
-    /****************************************************
-     * TODO: Implement the following tests:
-     * UpdateQualificationType
-     ***************************************************/
-
+            // Assert database data
+            request.Description?request.Description==qt.description:true
+            request.QualificationTypeStatus?request.QualificationTypeStatus==qt.qualificationTypeStatus:true
+            request.Test?request.Test==qt.test:true
+            request.AnswerKey?request.AnswerKey==qt.answerKey:true
+            request.TestDurationInSeconds?request.TestDurationInSeconds==qt.testDurationInSeconds.toString():true
+            request.RetryDelayInSeconds?request.RetryDelayInSeconds==qt.retryDelayInSeconds.toString():true
+            request.AutoGranted?request.AutoGranted==qt.autoGranted.toString():true
+            request.AutoGrantedValue?request.AutoGrantedValue==qt.autoGrantedValue.toString():true
+        where:
+            qt_ref                    | description   | qualificationTypeStatus | test   | answerKey | testDurationInSeconds | retryDelayInSeconds    | autoGranted | autoGrantedValue
+            qualificationTypes.guitar | "play guitar" | "Inactive"              | "play" | "nice"    | 3600.toString()       | (3600*24*7).toString() | "false"     | null
+            qualificationTypes.guitar | "play guitar" | "Active"                | null   | null      | null                  | null                   | null        | null
+            qualificationTypes.guitar | null          | null                    | "hard" | null      | null                  | null                   | null        | null
+            qualificationTypes.guitar | null          | null                    | null   | "ugly"    | null                  | null                   | null        | null
+            qualificationTypes.guitar | null          | null                    | null   | null      | 7200.toString()       | null                   | null        | null
+            qualificationTypes.guitar | null          | null                    | null   | null      | null                  | (3600*24*4).toString() | null        | null
+            qualificationTypes.guitar | null          | null                    | null   | null      | null                  | null                   | "true"      | "5"
+            qualificationTypes.guitar | "play guitar" | "Active"                | "play" | "nice"    | 3600.toString()       | (3600*24*7).toString() | "false"     | null
+    }
 }
