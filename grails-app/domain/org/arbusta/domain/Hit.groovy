@@ -3,11 +3,6 @@ package org.arbusta.domain
 import java.sql.Timestamp
 
 class Hit {
-
-    /**
-     * TODO: Add constraints to this entity
-     */
-
     HitType hitType
     String question
     Timestamp creationTime

@@ -27,7 +27,11 @@ class AMTOperationsService {
         if(request.Question == null){
             throw new Exception("Either a Question parameter or a HITLayoutId parameter must be provided.")
         } else {
-            def hit = new Hit(hitType: request.HITTypeId,
+            def hitType = HitType.findById(Long.parseLong(request.HITTypeId))
+
+            if(!hitType) throw new IllegalArgumentException("Unable to find HITTypeId: ${HITTypeId} ${request}")
+
+            def hit = new Hit(hitType: hitType,
                     question: request.Question,
                     requesterAnnotation: request.RequesterAnnotation,
                     lifetimeInSeconds: Long.parseLong(request.LifetimeInSeconds),
@@ -35,7 +39,7 @@ class AMTOperationsService {
                     creationTime: new Timestamp(System.currentTimeMillis())
             );
 
-            if(!hit.save()) throw new ValidationException("Unable to save Hit ${hit}", hit.errors)
+            if(!hit.save(flush:true)) throw new ValidationException("Unable to save Hit ${hit}", hit.errors)
 
             response = [:]
 
@@ -105,7 +109,7 @@ class AMTOperationsService {
             }
         }
 
-        if(!type.save())
+        if(!type.save(flush:true))
             throw new ValidationException("Impossible to RegisterHITType ${request}", type.errors)
 
         def response = [:]
@@ -125,7 +129,7 @@ class AMTOperationsService {
                 test: request.Test, answerKey: request.AnswerKey,
                 testDurationInSeconds:request.TestDurationInSeconds)
 
-        q.save()
+        q.save(flush:true)
 
         if(q.hasErrors()) throw new ValidationException(q.errors)
 
@@ -151,7 +155,7 @@ class AMTOperationsService {
                                     sendNotification: request.SendNotification,
                                     request: null)
 
-        if(!qa.save()) throw new ValidationException("Unable to save QualificationAssignment ${request}", qa.errors)
+        if(!qa.save(flush:true)) throw new ValidationException("Unable to save QualificationAssignment ${request}", qa.errors)
         return null
     }
 
@@ -159,9 +163,9 @@ class AMTOperationsService {
         def qRequest = QualificationRequest.findById(Long.parseLong(request.QualificationRequestId))
         def qa = new QualificationAssignment(worker: qRequest.worker, qualificationType: qRequest.qualificationType, integerValue: Integer.parseInt(request.IntegerValue), sendNotification: "true", request: qRequest)
 
-        if(!qa.save()) throw new ValidationException("Unable to create QualificationAssignment as part of the GrantQualificationRequest for ${request}", qa.errors)
+        if(!qa.save(flush:true)) throw new ValidationException("Unable to create QualificationAssignment as part of the GrantQualificationRequest for ${request}", qa.errors)
         qRequest.assignment = qa
-        if(!qRequest.save()) throw new ValidationException("Unable to link assignment to request", qRequest.errors)
+        if(!qRequest.save(flush:true)) throw new ValidationException("Unable to link assignment to request", qRequest.errors)
 
         return null
     }
@@ -175,10 +179,20 @@ class AMTOperationsService {
         if(hitType==null) throw new IllegalArgumentException("HitType ${request.HITTypeId} does not exist")
 
 
-        hit.setHitType(hitType)
+        println "###########"
 
-        if(!hit.save())
-            throw new ValidationException("Unable to change hit type ${request}")
+        println "Changing ${hit.hitType.id} -> ${hitType.id} in [${hit.id}]"
+        hit.hitType = hitType
+        println "New value ${hit.hitType.id} "
+
+        if(!hit.save(flush:true))
+            throw new ValidationException("Unable to change hit type ${request}", hit.errors)
+
+
+
+        println "New value ${hit.refresh().hitType.id} after save ${hit.errors}"
+
+        return null
     }
 
     def ExtendHIT(request) {
@@ -187,14 +201,14 @@ class AMTOperationsService {
         hit.maxAssignments += Integer.parseInt(request.MaxAssignmentsIncrement)
         if(hit.lifetimeInSeconds != null)
             hit.lifetimeInSeconds += Long.parseLong(request.ExpirationIncrementInSeconds)
-        if(!hit.save()) throw new ValidationException("Unable to ExtendHIT ${request}", hit.errors)
+        if(!hit.save(flush:true)) throw new ValidationException("Unable to ExtendHIT ${request}", hit.errors)
         return null
     }
 
     def ForceExpireHIT(request) {
         def hit = Hit.findById(Long.parseLong(request.HITId))
         hit.lifetimeInSeconds = 0
-        if(!hit.save()) throw new ValidationException("Unable to expire HIT: ${request}", hit.errors)
+        if(!hit.save(flush:true)) throw new ValidationException("Unable to expire HIT: ${request}", hit.errors)
         return null
     }
 
@@ -212,7 +226,7 @@ class AMTOperationsService {
             else
                 hit.hitStatus = "Reviewing"
         }
-        if(!hit.save()) throw new ValidationException("Unable to change hit status SetHITAsReviewing(${request})", hit.errors)
+        if(!hit.save(flush:true)) throw new ValidationException("Unable to change hit status SetHITAsReviewing(${request})", hit.errors)
         return null
     }
 
@@ -240,7 +254,7 @@ class AMTOperationsService {
             qualificationAssignment.request.reason = request.Reason
             qualificationAssignment.request.status = "Rejected"
             qualificationAssignment.request.assignment = null
-            qualificationAssignment.request.save()
+            qualificationAssignment.request.save(flush:true)
         }
         qualificationAssignment.delete()
         return null
@@ -260,7 +274,7 @@ class AMTOperationsService {
 
         qualificationAssignment.integerValue = integerValue
 
-        if(!qualificationAssignment.save()) throw new ValidationException("Unable to update qualification ${request}", qualificationAssignment.errors)
+        if(!qualificationAssignment.save(flush:true)) throw new ValidationException("Unable to update qualification ${request}", qualificationAssignment.errors)
 
         return null
     }

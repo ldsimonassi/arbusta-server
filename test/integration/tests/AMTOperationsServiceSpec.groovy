@@ -1,10 +1,10 @@
 package tests
 
-
+import org.arbusta.XmlHelper
+import org.codehaus.groovy.grails.io.support.IOUtils
 import grails.validation.ValidationException
 import spock.lang.*
 import org.arbusta.domain.*
-
 import java.sql.Timestamp
 
 class AMTOperationsServiceSpec extends Specification {
@@ -112,9 +112,39 @@ class AMTOperationsServiceSpec extends Specification {
         println "###################"
     }
 
+    def createDummyQualificationRequest(worker, qualificationType) {
+        def qr = new QualificationRequest(worker:worker, qualificationType: qualificationType, test: "The test", answer: "The answer", submitTime: new java.sql.Timestamp(System.currentTimeMillis()), assignment: null)
+        if(!qr.save()) throw new ValidationException("Unable to create a dummy Qualification Request", qr.errors)
+        return qr
+    }
+
+
+    def createDummyHitWOTypeId() {
+        def request = loadRequest("CreateHitWOTypeId")
+        def response = AMTOperationsService.CreateHIT(request)
+        def hit = Hit.findById(Long.parseLong(response.HITId))
+        return hit
+    }
+
+
+    def loadRequest(id) {
+        def xml = IOUtils.createXmlSlurper().parse(new File("./test/integration/examples/${id}.xml"))
+        def ret = XmlHelper.hashBuilder(xml)
+        return ret
+    }
+
+    def createDummyHitType() {
+        def request = loadRequest("RegisterHITType")
+        request.QualificationRequirement = null
+        def response = AMTOperationsService.RegisterHITType(request)
+        return HitType.findById(Long.parseLong(response.RegisterHITTypeResult.HITTypeId))
+    }
+
+
+
     def "create simple qualification type" () {
         setup:
-            def request = TestsHelper.loadRequest("CreateQualificationType")
+            def request = loadRequest("CreateQualificationType")
         when:
             def response = AMTOperationsService.CreateQualificationType(request)
         then:
@@ -131,11 +161,8 @@ class AMTOperationsServiceSpec extends Specification {
     @Unroll("register hit type with qualification requirement [#qt] qualification type")
     def "register hit type with qualification requirement" () {
         when:
-            // Link the QualificationRequirement
-            def request = TestsHelper.loadRequest("RegisterHITType")
+            def request = loadRequest("RegisterHITType")
             request.QualificationRequirement.QualificationTypeId = qt;
-            def l = Long.parseLong(request.QualificationRequirement.QualificationTypeId)
-
             def response = AMTOperationsService.RegisterHITType(request)
         then:
             response != null
@@ -152,7 +179,7 @@ class AMTOperationsServiceSpec extends Specification {
     def "register hit type with multiple qualification requirement" () {
         setup:
             // Build the RegisterHitType Request
-            def request = TestsHelper.loadRequest("RegisterHITType")
+            def request = loadRequest("RegisterHITType")
 
             // Link two QualificationRequirements
             request.QualificationRequirement = []
@@ -196,14 +223,13 @@ class AMTOperationsServiceSpec extends Specification {
             qualificationTypes.math |  qualificationTypes.trusted_worker
     }
 
-
-
     def "create simple hit without hit_type" () {
         setup:
-            def request = TestsHelper.loadRequest("CreateHitWOTypeId")
+            def request = loadRequest("CreateHitWOTypeId")
         when:
             def response = AMTOperationsService.CreateHIT(request)
         then:
+            // Response data validation
             response != null
             response.HITId != null
             response.HITTypeId != null
@@ -216,21 +242,27 @@ class AMTOperationsServiceSpec extends Specification {
             response.LifetimeInSeconds.toString() == request.LifetimeInSeconds
             response.AssignmentDurationInSeconds.toString() == request.AssignmentDurationInSeconds
             response.Reward.Amount.toString() == request.Reward.Amount
-            // TODO Check Database
+            // Database data validation
+            def hit = Hit.findById(Long.parseLong(response.HITId))
+            hit.id.toString() == response.HITId
+            hit.hitType.id.toString() == response.HITTypeId
+            hit.hitType.title == response.Title
+            hit.question == response.Question
+            hit.maxAssignments.toString() == response.MaxAssignments
+            hit.lifetimeInSeconds.toString() == response.LifetimeInSeconds
+            hit.hitType.assignmentDurationInSeconds.toString() == response.AssignmentDurationInSeconds
     }
 
     def "create complex hit with hit_type" () {
         setup:
             //Register Hit Type
-            def request = TestsHelper.loadRequest("RegisterHITType")
-            request.QualificationRequirement = null
-            def response = AMTOperationsService.RegisterHITType(request)
-            def hitTypeId = response.RegisterHITTypeResult.HITTypeId
+            def hitType = createDummyHitType()
+
             //Prepare CreateHitRequest
-            request = TestsHelper.loadRequest("CreateHitWTypeId")
-            request.HITTypeId = hitTypeId
+            def request = loadRequest("CreateHitWTypeId")
+            request.HITTypeId = hitType.id.toString()
         when:
-            response = AMTOperationsService.CreateHIT(request)
+            def response = AMTOperationsService.CreateHIT(request)
         then:
             // Assert response data
             response != null
@@ -244,7 +276,7 @@ class AMTOperationsServiceSpec extends Specification {
             def hit = Hit.findById(Long.parseLong(response.HITId))
             hit != null
             hit.id.toString() == response.HITId
-            hit.hitType.id.toString() == hitTypeId
+            hit.hitType.id.toString() == hitType.id.toString()
             hit.question == request.Question
             hit.lifetimeInSeconds.toString() == request.LifetimeInSeconds
             hit.maxAssignments.toString() == request.MaxAssignments
@@ -253,7 +285,7 @@ class AMTOperationsServiceSpec extends Specification {
     @Unroll("Assign qualification [#qt.name] to worker [#worker.firstName #worker.lastName]")
     def "assign qualification to worker" () {
         setup:
-            def request = TestsHelper.loadRequest("AssignQualification")
+            def request = loadRequest("AssignQualification")
             // Override dynamic fields
             request.QualificationTypeId = qt.id.toString()
             request.WorkerId = worker.id.toString()
@@ -282,8 +314,8 @@ class AMTOperationsServiceSpec extends Specification {
     @Unroll("grant qualification #qr.name to #worker.firstName #worker.lastName")
     def "grant qualification to a worker" () {
         setup:
-            def qr = TestsHelper.createDummyQualificationRequest(worker, qt)
-            def request = TestsHelper.loadRequest("GrantQualification")
+            def qr = createDummyQualificationRequest(worker, qt)
+            def request = loadRequest("GrantQualification")
             request.QualificationRequestId = qr.id.toString()
         when:
             def response = AMTOperationsService.GrantQualification(request)
@@ -303,118 +335,110 @@ class AMTOperationsServiceSpec extends Specification {
             workers.dario | qualificationTypes.math
     }
 
-    
+
     def "change hit type" () {
         setup:
             // Register Hit Type
-            def request = TestsHelper.loadRequest("RegisterHITType")
-            request.QualificationRequirement = null
-            def response = AMTOperationsService.RegisterHITType(request)
-            def hitTypeId = response.RegisterHITTypeResult.HITTypeId
-
+            def hitType = createDummyHitType()
             // Create Hit
-            request = TestsHelper.loadRequest("CreateHitWOTypeId")
-            response = AMTOperationsService.CreateHIT(request)
-            def hitId = response.HITId
+            def hit = createDummyHitWOTypeId()
 
             // Prepare the request to be tested
-            request = TestsHelper.loadRequest("ChangeHITTypeOfHIT")
-            request.HITId = hitId.toString()
-            request.HITTypeId = hitTypeId.toString()
+            def request = loadRequest("ChangeHITTypeOfHIT")
+            request.HITId = hit.id.toString()
+            request.HITTypeId = hitType.id.toString()
         when:
-            response = AMTOperationsService.ChangeHITTypeOfHIT(request)
+            def response = AMTOperationsService.ChangeHITTypeOfHIT(request)
+            hit.refresh()
+            println "Finding: ${Hit.findById(hit.id).hitType.id}"
+            println "Refreshing: ${hit.hitType.id}"
+            println "Request Hit Type: ${request.HITTypeId}"
         then:
-            assert response == null
-            assert Hit.findById(hitId).hitType.id.toString() == hitTypeId
+            response == null
+            hit.hitType.id == hitType.id
     }
 
     
     def "extend hit duration and assignments"() {
         setup:
             // Create Hit
-            def request = TestsHelper.loadRequest("CreateHitWOTypeId")
-            def response = AMTOperationsService.CreateHIT(request)
-            def hitId = response.HITId
-            def hit = Hit.findById(Long.parseLong(hitId))
+            def hit = createDummyHitWOTypeId()
             def previousLifetimeDuration = hit.lifetimeInSeconds
             def previousMaxAssignments = hit.maxAssignments
-            // Prepare the request to be tested
-            request = TestsHelper.loadRequest("ExtendHIT")
-            request.HITId = hitId
-        when:
-            response = AMTOperationsService.ExtendHIT(request)
-        then:
-            assert response == null
-            assert Hit.findById(hitId).maxAssignments == Integer.parseInt(request.MaxAssignmentsIncrement) + previousMaxAssignments
-            assert Hit.findById(hitId).lifetimeInSeconds == Long.parseLong(request.ExpirationIncrementInSeconds) + previousLifetimeDuration
-            // Verify increments
-            // Hit.findById(Long.parseLong(hitId)).
 
+            // Prepare the request to be tested
+            def request = loadRequest("ExtendHIT")
+            request.HITId = hit.id.toString()
+        when:
+            def response = AMTOperationsService.ExtendHIT(request)
+            hit.refresh()
+        then:
+            response == null
+            hit.maxAssignments == Integer.parseInt(request.MaxAssignmentsIncrement) + previousMaxAssignments
+            hit.lifetimeInSeconds == Long.parseLong(request.ExpirationIncrementInSeconds) + previousLifetimeDuration
     }
 
     
     def "force expiration of a HIT using ForceExpireHIT"() {
-       setup:
-           // Create Hit
-           def request = TestsHelper.loadRequest("CreateHitWOTypeId")
-           def response = AMTOperationsService.CreateHIT(request)
-           def hitId = response.HITId
-           request = TestsHelper.loadRequest("ForceExpireHIT")
-           request.HITId = hitId
-       when:
+        setup:
+            // Create Hit
+            def request = loadRequest("CreateHitWOTypeId")
+            def response = AMTOperationsService.CreateHIT(request)
+            def hitId = response.HITId
+            request = loadRequest("ForceExpireHIT")
+            request.HITId = hitId
+        when:
             response = AMTOperationsService.ForceExpireHIT(request)
-      then:
-            assert response == null
-            assert Hit.findById(Long.parseLong(request.HITId)).lifetimeInSeconds == 0
+        then:
+            response == null
+            Hit.findById(Long.parseLong(request.HITId)).lifetimeInSeconds == 0
     }
 
-    
     def "set hit as reviewing" () {
         setup:
             // Create temporary Hit
-            def request = TestsHelper.loadRequest("CreateHitWOTypeId")
-            def response = AMTOperationsService.CreateHIT(request)
-            def hitId = response.HITId
+            def hit = createDummyHitWOTypeId()
 
             // Prepare SetHITAsReviewing request
-            request = TestsHelper.loadRequest("SetHITAsReviewing")
-            request.HITId = hitId
-            request.Revert = "false"
+            def request = loadRequest("SetHITAsReviewing")
+            request.HITId = hit.id.toString()
         when:
-            response = AMTOperationsService.SetHITAsReviewing(request)
-
+            request.Revert = "false"
+            def response = AMTOperationsService.SetHITAsReviewing(request)
+            hit.refresh()
         then:
-            assert Hit.findById(Long.parseLong(hitId)).hitStatus == "Reviewing"
-            assert response == null
+            hit.hitStatus == "Reviewing"
+            response == null
     }
 
-    
     def "set hit as reviewable" () {
         setup:
             // Create temporary Hit
-            def request = TestsHelper.loadRequest("CreateHitWOTypeId")
-            def response = AMTOperationsService.CreateHIT(request)
-            def hitId = response.HITId
+            def hit = createDummyHitWOTypeId()
 
             // Prepare SetHITAsReviewing request
-            request = TestsHelper.loadRequest("SetHITAsReviewing")
-            request.HITId = hitId
-            request.Revert = "false"
-            response = AMTOperationsService.SetHITAsReviewing(request)
-            request.Revert = "true"
+            def request = loadRequest("SetHITAsReviewing")
+            request.HITId = hit.id.toString()
         when:
+            request.Revert = "false"
+            def response = AMTOperationsService.SetHITAsReviewing(request)
+            request.Revert = "true"
             response = AMTOperationsService.SetHITAsReviewing(request)
+            hit.refresh()
         then:
-            assert Hit.findById(Long.parseLong(hitId)).hitStatus == "Reviewable"
-            assert response == null
+            // Assert response data
+            response == null
+
+            // Assert database data
+            hit.hitStatus == "Reviewable"
     }
 
 
     @Unroll("Rejecting #qt.name to #worker.firstName #worker.lastName")
     def "reject qualification request" () {
         setup:
-            def qr = TestsHelper.createDummyQualificationRequest(worker, qt)
-            def request = TestsHelper.loadRequest("RejectQualificationRequest")
+            def qr = createDummyQualificationRequest(worker, qt)
+            def request = loadRequest("RejectQualificationRequest")
             request.QualificationRequestId = qr.id.toString()
         when:
             def response = AMTOperationsService.RejectQualificationRequest(request)
@@ -436,15 +460,15 @@ class AMTOperationsServiceSpec extends Specification {
     def "revoke qualification" () {
         setup:
             // Create qualification request
-            def qr = TestsHelper.createDummyQualificationRequest(worker, qt)
+            def qr = createDummyQualificationRequest(worker, qt)
             // Grant qualification
-            def request = TestsHelper.loadRequest("GrantQualification")
+            def request = loadRequest("GrantQualification")
             request.QualificationRequestId = qr.id.toString()
             AMTOperationsService.GrantQualification(request)
             assert QualificationAssignment.findByWorkerAndQualificationType(worker, qt, [lock: true]) != null
 
             // Prepare revoke
-            request = TestsHelper.loadRequest("RevokeQualification")
+            request = loadRequest("RevokeQualification")
             request.SubjectId = worker.id.toString()
             request.QualificationTypeId = qr.qualificationType.id.toString()
             request.Reason = "We don't know"
@@ -472,10 +496,10 @@ class AMTOperationsServiceSpec extends Specification {
     def "update worker qualification score for a given qualification type" () {
         setup:
             // Create qualification type
-            def qualificationRequest = TestsHelper.createDummyQualificationRequest(worker, qt)
+            def qualificationRequest = createDummyQualificationRequest(worker, qt)
 
             // Grant qualification
-            def request = TestsHelper.loadRequest("GrantQualification")
+            def request = loadRequest("GrantQualification")
             request.QualificationRequestId = qualificationRequest.id.toString()
             AMTOperationsService.GrantQualification(request)
 
@@ -483,7 +507,7 @@ class AMTOperationsServiceSpec extends Specification {
             assert QualificationAssignment.findByWorkerAndQualificationType(worker, qt, [lock: true]) != null
 
             // Prepare update qualification request
-            request = TestsHelper.loadRequest("UpdateQualificationScore")
+            request = loadRequest("UpdateQualificationScore")
             request.QualificationTypeId = qt.id.toString()
             request.SubjectId = worker.id.toString()
             request.IntegerValue = integerValue.toString()
@@ -500,9 +524,6 @@ class AMTOperationsServiceSpec extends Specification {
             workers.paul | qualificationTypes.guitar  | 9
             workers.dario | qualificationTypes.math | 5
     }
-
-
-
 
 
 //    def "update the parameters of a given qualification type" () {
