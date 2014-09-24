@@ -36,3 +36,9 @@
 /*.iml
 
 cobertura.ser
+
+.classpath
+.project
+.settings/
+
+target-eclipse/
