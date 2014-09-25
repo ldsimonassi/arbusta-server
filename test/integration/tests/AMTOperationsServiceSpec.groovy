@@ -574,4 +574,17 @@ class AMTOperationsServiceSpec extends Specification {
             qualificationTypes.guitar | null          | null                    | null   | null      | null                  | null                   | "true"      | "5"
             qualificationTypes.guitar | "play guitar" | "Active"                | "play" | "nice"    | 3600.toString()       | (3600*24*7).toString() | "false"     | null
     }
+	
+	
+	def "simple getHit operations" () {
+		setup:
+			def hit = createDummyHitWOTypeId()
+			def request = [:]
+			request.HITId = hit.id.toString()
+		when:
+			def response = AMTOperationsService.GetHIT(request)
+		then:
+			response.HITId == request.HITId
+	}
+	
 }

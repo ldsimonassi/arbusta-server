@@ -1,14 +1,18 @@
 package org.arbusta.services
 
+import org.apache.catalina.connector.Response;
 import org.arbusta.domain.Hit
 import org.arbusta.domain.QualificationAssignment
 import org.arbusta.domain.QualificationRequest
 import org.arbusta.domain.QualificationType
 import org.arbusta.domain.QualificationRequirement
 import org.arbusta.domain.HitType
+
 import grails.transaction.Transactional
 import grails.validation.ValidationException
+
 import org.arbusta.domain.Worker
+
 import java.sql.Timestamp
 
 @Transactional
@@ -323,4 +327,62 @@ class AMTOperationsService {
 
         return response
     }
+	
+	
+	def GetHIT(request) {
+		def hitId = Long.parseLong(request.HITId)
+		def hit = Hit.findById(hitId)
+		
+		if(!hit)
+			throw new IllegalArgumentException("HITId not found ${hitId} for request: ${request}")
+			
+		def response = [:]
+		response.HITId = hit.id.toString()
+		response.HITTypeId = hit.hitType.id.toString()
+		// TODO Implement response.HITGroupId 
+		// TODO Implement response.HITLayoutId
+		response.CreationTime = hit.creationTime.toString()
+		response.Title = hit.hitType.title
+		response.Description = hit.hitType.description.toString()
+		response.Keywords = hit.hitType.keywords.toString()
+		response.HITStatus = hit.hitStatus
+		response.Reward = [:]
+		response.Reward.Amount = hit.hitType.reward.toString()
+		response.Reward.CurrencyCode = "USD"
+		response.Reward.FormattedPrice = "USD ${response.Reward.Amoun}"
+		response.LifetimeInSeconds = hit.lifetimeInSeconds.toString()
+
+		response.AssignmentDurationInSeconds = hit.hitType.assignmentDurationInSeconds.toString()
+		response.MaxAssignments = hit.maxAssignments.toString()
+		response.AutoApprovalDelayInSeconds = hit.hitType.autoApprovalDelayInSeconds.toString()
+		// TODO  Implement response.Expiration
+		response.QualificationRequirement = null
+		
+		hit.hitType.qualificationRequirements.each { qr ->
+			def rsp = [:]
+			rsp.QualificationTypeId = qr.qualificationType.id.toString()
+			rsp.Comparator = qr.comparator
+			rsp.IntegerValue = qr.integerValue.toString()
+			
+			if(!response.QualificationRequirement)
+				response.QualificationRequirement = rsp
+			else if (!response.QualificationRequirement instanceof ArrayList) {
+				def tmp = response.QualificationRequirement
+				response.QualificationRequirement = []
+				response.QualificationRequirement.add tmp
+				response.QualificationRequirement.add rsp
+			} else
+				response.QualificationRequirement.addShutdownHook rsp
+		}
+		response.Question = hit.question
+		response.RequesterAnnotation = hit.requesterAnnotation
+		// TODO Implement response.NumberOfSimilarHITs
+		response.HITReviewStatus = hit.reviewStatus
+
+		// TODO Implement NumberofAssignmentsPending
+		// TODO Implement NumberofAssignmentsAvailable
+		// TODO Implement NumberofAssignmentsCompleted
+
+		return response 
+	}
 }
