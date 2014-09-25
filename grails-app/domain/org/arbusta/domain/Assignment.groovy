@@ -17,6 +17,14 @@ class Assignment {
 	
     static constraints = {
 		status(inList: ["Submitted", "Approved", "Rejected"])
+		autoApprovalTime(nullable: true)
+		acceptTime(nullable: true)
+		submitTime(nullable: false)
+		approvalTime(nullable: true)
+		rejectionTime(nullable: true)
+		deadLine(nullable: true)
+		answer(nullable: true)
+		requesterFeedback(nullable: true)
     }
 	
 	static mapping = {

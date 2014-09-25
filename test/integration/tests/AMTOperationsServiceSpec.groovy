@@ -2,9 +2,12 @@ package tests
 
 import org.arbusta.XmlHelper
 import org.codehaus.groovy.grails.io.support.IOUtils
+
 import grails.validation.ValidationException
 import spock.lang.*
+
 import org.arbusta.domain.*
+
 import java.sql.Timestamp
 
 class AMTOperationsServiceSpec extends Specification {
@@ -112,6 +115,29 @@ class AMTOperationsServiceSpec extends Specification {
         println "###################"
     }
 
+	
+	def createDummyAssignment(worker, hit) {
+		// TODO Calculate autoApprovalTime time
+		// TODO Calculate deadLine
+		def assignment = new Assignment(
+				worker: worker,
+				hit: hit,
+				status: "Submitted",
+				autoApprovalTime: null, 
+				acceptTime: null,
+				submitTime: new Timestamp(System.currentTimeMillis()),
+				approvalTime: null,
+				rejectionTime: null,
+				deadLine: null,
+				answer: null,
+				requesterFeedback: null)
+		
+		if(!assignment.save())
+			throw new ValidationException("Error while trying to save assignment", assignment.errors)
+
+		return assignment
+	}
+	
     def createDummyQualificationRequest(worker, qualificationType) {
         def qr = new QualificationRequest(worker:worker, qualificationType: qualificationType, test: "The test", answer: "The answer", submitTime: new java.sql.Timestamp(System.currentTimeMillis()), assignment: null)
         if(!qr.save()) throw new ValidationException("Unable to create a dummy Qualification Request", qr.errors)
@@ -585,6 +611,15 @@ class AMTOperationsServiceSpec extends Specification {
 			def response = AMTOperationsService.GetHIT(request)
 		then:
 			response.HITId == request.HITId
+			//TODO More comlpete assertions set
+	}
+	
+	def "create dummy assignment" () {
+		when:
+			def hit = createDummyHitWOTypeId()
+			def assignment = createDummyAssignment(workers.dario, hit)
+		then:
+			assignment
 	}
 	
 }
