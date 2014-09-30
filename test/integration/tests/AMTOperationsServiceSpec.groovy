@@ -667,13 +667,17 @@ class AMTOperationsServiceSpec extends Specification {
     }
 
 
-//    def "get an assignment"() {
-//        setup:
-//
-//        //AssignmentId
-//        when:
-//
-//        then:
-//
-//    }
+    def "get an assignment"() {
+        setup:
+            def hit = createDummyHitWOTypeId()
+            def assignment = createDummyAssignment(workers.dario, hit)
+            def request = loadRequest("GetAssignment")
+            request.AssignmentId = assignment.id.toString()
+        when:
+            def response = AMTOperationsService.GetAssignment(request)
+        then:
+            //TODO More comlpete assertions set
+            response.HIT.HITId == hit.id.toString()
+            response.Assignment.AssignmentId == assignment.id.toString()
+    }
 }

@@ -425,5 +425,26 @@ class AMTOperationsService {
     def GetAssignment(request) {
         def assignment = Assignment.findById(Long.parseLong(request.AssignmentId))
         if(assignment == null) throw new IllegalArgumentException("Assignment not found $request")
+        def response = [:]
+        response.Assignment = buildAssignmentStructure(assignment)
+        response.HIT = buildHitDataStructure(assignment.hit)
+        return response
+    }
+
+    def buildAssignmentStructure(Assignment assignment) {
+        def response =  [:]
+        response.AssignmentId = assignment.id.toString()
+        response.WorkerId = assignment.worker.id.toString()
+        response.HITId = assignment.hit.id.toString()
+        response.AssignmentStatus = assignment.status
+        response.AutoApprovalTime = assignment.autoApprovalTime.toString()
+        response.AcceptTime = assignment.acceptTime.toString()
+        response.SubmitTime = assignment.submitTime.toString()
+        response.ApprovalTime = assignment.approvalTime.toString()
+        response.RejectionTime = assignment.rejectionTime.toString()
+        response.Deadline = assignment.deadLine.toString()
+        response.Answer = assignment.answer
+        response.RequesterFeedback = assignment.requesterFeedback
+        return response
     }
 }
