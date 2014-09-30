@@ -632,4 +632,19 @@ class AMTOperationsServiceSpec extends Specification {
             assignment2.requesterFeedback == request.RequesterFeedback
             assignment2.status == "Approved"
     }
+
+    def "reject assignment"() {
+        setup:
+            def hit = createDummyHitWOTypeId()
+            def assignment = createDummyAssignment(workers.dario, hit)
+            def request = loadRequest("RejectAssignment")
+            request.AssignmentId = assignment.id.toString()
+        when:
+            def response = AMTOperationsService.RejectAssignment(request)
+        then:
+            response == null
+            def assignment2 = Assignment.findById(assignment.id)
+            assignment2.requesterFeedback == request.RequesterFeedback
+            assignment2.status == "Rejected"
+    }
 }
