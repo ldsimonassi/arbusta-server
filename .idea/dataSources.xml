@@ -1,12 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="DataSourceManagerImpl" format="xml" hash="1693352216">
+  <component name="DataSourceManagerImpl" format="xml" hash="2877320201">
     <data-source source="LOCAL" name="arbusta-server dev" uuid="a0f915eb-bf60-46d0-ad78-8357b9fa7c1d">
       <driver-ref>mysql</driver-ref>
       <jdbc-driver>com.mysql.jdbc.Driver</jdbc-driver>
       <jdbc-url>jdbc:mysql://localhost:3306/my_database</jdbc-url>
       <user-name>username</user-name>
       <user-password>dfdadfcbdfd9dfd9dfdddfc5dfd8dfce</user-password>
+      <libraries />
+    </data-source>
+    <data-source source="LOCAL" name="MySQL - arbusta@localhost" uuid="7939df07-1bb7-4c71-a10b-8d6827e05127">
+      <driver-ref>mysql</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>com.mysql.jdbc.Driver</jdbc-driver>
+      <jdbc-url>jdbc:mysql://localhost:3306/arbusta</jdbc-url>
+      <user-name>arbusta</user-name>
+      <user-password>dfcbdfd8dfc8dfdfdfd9dfdedfc5</user-password>
+      <schema-pattern>arbusta.*</schema-pattern>
+      <default-schemas>arbusta.*</default-schemas>
+      <driver-properties>
+        <property name="zeroDateTimeBehavior" value="convertToNull" />
+        <property name="tinyInt1isBit" value="false" />
+      </driver-properties>
       <libraries />
     </data-source>
   </component>

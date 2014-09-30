@@ -1,6 +1,7 @@
 package org.arbusta.services
 
-import org.apache.catalina.connector.Response;
+import org.apache.catalina.connector.Response
+import org.arbusta.domain.Assignment;
 import org.arbusta.domain.Hit
 import org.arbusta.domain.QualificationAssignment
 import org.arbusta.domain.QualificationRequest
@@ -383,6 +384,25 @@ class AMTOperationsService {
 		// TODO Implement NumberofAssignmentsAvailable
 		// TODO Implement NumberofAssignmentsCompleted
 
-		return response 
+		return response
 	}
+
+
+    def ApproveAssignment(request) {
+        def assignmentId = Long.parseLong(request.AssignmentId)
+        def assignment = Assignment.findById(assignmentId)
+        if(!assignment) throw new IllegalArgumentException("The assignment ${assignmentId} was not found in the db req: $request")
+        assignment.requesterFeedback = request.RequesterFeedback
+        assignment.status = "Approved"
+        if(!assignment.save()) throw new ValidationException("Error while saving assignment $assignmentId for request: $request", assignment.errors)
+        return null
+    }
+
+    def ApproveRejectedAssignment (request) {
+        // TODO Implement
+    }
+
+    def RejectAssignment(request) {
+        // TODO Implement
+    }
 }

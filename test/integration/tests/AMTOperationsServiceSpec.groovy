@@ -361,7 +361,6 @@ class AMTOperationsServiceSpec extends Specification {
             workers.dario | qualificationTypes.math
     }
 
-
     def "change hit type" () {
         setup:
             // Register Hit Type
@@ -384,7 +383,6 @@ class AMTOperationsServiceSpec extends Specification {
             hit.hitType.id == hitType.id
     }
 
-    
     def "extend hit duration and assignments"() {
         setup:
             // Create Hit
@@ -404,7 +402,6 @@ class AMTOperationsServiceSpec extends Specification {
             hit.lifetimeInSeconds == Long.parseLong(request.ExpirationIncrementInSeconds) + previousLifetimeDuration
     }
 
-    
     def "force expiration of a HIT using ForceExpireHIT"() {
         setup:
             // Create Hit
@@ -458,7 +455,6 @@ class AMTOperationsServiceSpec extends Specification {
             // Assert database data
             hit.hitStatus == "Reviewable"
     }
-
 
     @Unroll("Rejecting #qt.name to #worker.firstName #worker.lastName")
     def "reject qualification request" () {
@@ -600,8 +596,7 @@ class AMTOperationsServiceSpec extends Specification {
             qualificationTypes.guitar | null          | null                    | null   | null      | null                  | null                   | "true"      | "5"
             qualificationTypes.guitar | "play guitar" | "Active"                | "play" | "nice"    | 3600.toString()       | (3600*24*7).toString() | "false"     | null
     }
-	
-	
+
 	def "simple getHit operations" () {
 		setup:
 			def hit = createDummyHitWOTypeId()
@@ -621,5 +616,20 @@ class AMTOperationsServiceSpec extends Specification {
 		then:
 			assignment
 	}
-	
+
+    def "approve assignment"() {
+        setup:
+            def hit = createDummyHitWOTypeId()
+            def assignment = createDummyAssignment(workers.dario, hit)
+            def request = loadRequest("ApproveAssignment")
+            request.AssignmentId = assignment.id.toString()
+        when:
+            def response = AMTOperationsService.ApproveAssignment(request)
+        then:
+            response == null
+
+            def assignment2 = Assignment.findById(assignment.id)
+            assignment2.requesterFeedback == request.RequesterFeedback
+            assignment2.status == "Approved"
+    }
 }
