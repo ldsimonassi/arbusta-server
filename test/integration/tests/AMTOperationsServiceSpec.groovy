@@ -665,4 +665,15 @@ class AMTOperationsServiceSpec extends Specification {
             assignment2.status == "Approved"
             assignment2.requesterFeedback == request.RequesterFeedback
     }
+
+
+//    def "get an assignment"() {
+//        setup:
+//
+//        //AssignmentId
+//        when:
+//
+//        then:
+//
+//    }
 }

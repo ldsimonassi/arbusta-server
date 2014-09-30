@@ -336,56 +336,59 @@ class AMTOperationsService {
 		
 		if(!hit)
 			throw new IllegalArgumentException("HITId not found ${hitId} for request: ${request}")
-			
-		def response = [:]
-		response.HITId = hit.id.toString()
-		response.HITTypeId = hit.hitType.id.toString()
-		// TODO Implement response.HITGroupId 
-		// TODO Implement response.HITLayoutId
-		response.CreationTime = hit.creationTime.toString()
-		response.Title = hit.hitType.title
-		response.Description = hit.hitType.description.toString()
-		response.Keywords = hit.hitType.keywords.toString()
-		response.HITStatus = hit.hitStatus
-		response.Reward = [:]
-		response.Reward.Amount = hit.hitType.reward.toString()
-		response.Reward.CurrencyCode = "USD"
-		response.Reward.FormattedPrice = "USD ${response.Reward.Amoun}"
-		response.LifetimeInSeconds = hit.lifetimeInSeconds.toString()
 
-		response.AssignmentDurationInSeconds = hit.hitType.assignmentDurationInSeconds.toString()
-		response.MaxAssignments = hit.maxAssignments.toString()
-		response.AutoApprovalDelayInSeconds = hit.hitType.autoApprovalDelayInSeconds.toString()
-		// TODO  Implement response.Expiration
-		response.QualificationRequirement = null
-		
-		hit.hitType.qualificationRequirements.each { qr ->
-			def rsp = [:]
-			rsp.QualificationTypeId = qr.qualificationType.id.toString()
-			rsp.Comparator = qr.comparator
-			rsp.IntegerValue = qr.integerValue.toString()
-			
-			if(!response.QualificationRequirement)
-				response.QualificationRequirement = rsp
-			else if (!response.QualificationRequirement instanceof ArrayList) {
-				def tmp = response.QualificationRequirement
-				response.QualificationRequirement = []
-				response.QualificationRequirement.add tmp
-				response.QualificationRequirement.add rsp
-			} else
-				response.QualificationRequirement.addShutdownHook rsp
-		}
-		response.Question = hit.question
-		response.RequesterAnnotation = hit.requesterAnnotation
-		// TODO Implement response.NumberOfSimilarHITs
-		response.HITReviewStatus = hit.reviewStatus
-
-		// TODO Implement NumberofAssignmentsPending
-		// TODO Implement NumberofAssignmentsAvailable
-		// TODO Implement NumberofAssignmentsCompleted
-
-		return response
+		return buildHitDataStructure(hit)
 	}
+
+
+    def buildHitDataStructure(hit) {
+        def response = [:]
+        response.HITId = hit.id.toString()
+        response.HITTypeId = hit.hitType.id.toString()
+        // TODO Implement response.HITGroupId
+        // TODO Implement response.HITLayoutId
+        response.CreationTime = hit.creationTime.toString()
+        response.Title = hit.hitType.title
+        response.Description = hit.hitType.description.toString()
+        response.Keywords = hit.hitType.keywords.toString()
+        response.HITStatus = hit.hitStatus
+        response.Reward = [:]
+        response.Reward.Amount = hit.hitType.reward.toString()
+        response.Reward.CurrencyCode = "USD"
+        response.Reward.FormattedPrice = "USD ${response.Reward.Amoun}"
+        response.LifetimeInSeconds = hit.lifetimeInSeconds.toString()
+
+        response.AssignmentDurationInSeconds = hit.hitType.assignmentDurationInSeconds.toString()
+        response.MaxAssignments = hit.maxAssignments.toString()
+        response.AutoApprovalDelayInSeconds = hit.hitType.autoApprovalDelayInSeconds.toString()
+        // TODO  Implement response.Expiration
+        response.QualificationRequirement = null
+
+        hit.hitType.qualificationRequirements.each { qr ->
+            def rsp = [:]
+            rsp.QualificationTypeId = qr.qualificationType.id.toString()
+            rsp.Comparator = qr.comparator
+            rsp.IntegerValue = qr.integerValue.toString()
+
+            if(!response.QualificationRequirement)
+                response.QualificationRequirement = rsp
+            else if (!response.QualificationRequirement instanceof ArrayList) {
+                def tmp = response.QualificationRequirement
+                response.QualificationRequirement = []
+                response.QualificationRequirement.add tmp
+                response.QualificationRequirement.add rsp
+            } else
+                response.QualificationRequirement.addShutdownHook rsp
+        }
+        response.Question = hit.question
+        response.RequesterAnnotation = hit.requesterAnnotation
+        // TODO Implement response.NumberOfSimilarHITs
+        response.HITReviewStatus = hit.reviewStatus
+        // TODO Implement NumberofAssignmentsPending
+        // TODO Implement NumberofAssignmentsAvailable
+        // TODO Implement NumberofAssignmentsCompleted
+        return response
+    }
 
 
     def ApproveAssignment(request) {
@@ -408,7 +411,7 @@ class AMTOperationsService {
         return null
     }
 
-    def ApproveRejectedAssignment (request) {
+    def ApproveRejectedAssignment(request) {
         def assignmentId = Long.parseLong(request.AssignmentId)
         def assignment = Assignment.findById(assignmentId)
         if(!assignment) throw new IllegalArgumentException("The assignment ${assignmentId} was not found in the db req: $request")
@@ -417,5 +420,10 @@ class AMTOperationsService {
         assignment.status = "Approved"
         if(!assignment.save()) throw new ValidationException("Error while saving assignment $assignmentId for request: $request", assignment.errors)
         return null
+    }
+
+    def GetAssignment(request) {
+        def assignment = Assignment.findById(Long.parseLong(request.AssignmentId))
+        if(assignment == null) throw new IllegalArgumentException("Assignment not found $request")
     }
 }
