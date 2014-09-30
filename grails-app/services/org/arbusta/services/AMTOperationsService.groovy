@@ -409,8 +409,13 @@ class AMTOperationsService {
     }
 
     def ApproveRejectedAssignment (request) {
-        // TODO Implement
+        def assignmentId = Long.parseLong(request.AssignmentId)
+        def assignment = Assignment.findById(assignmentId)
+        if(!assignment) throw new IllegalArgumentException("The assignment ${assignmentId} was not found in the db req: $request")
+        if(assignment.status != "Rejected") throw new IllegalStateException("The assignment status is $assignment.status and it should be Rejected. Request data: $request")
+        assignment.requesterFeedback = request.RequesterFeedback
+        assignment.status = "Approved"
+        if(!assignment.save()) throw new ValidationException("Error while saving assignment $assignmentId for request: $request", assignment.errors)
+        return null
     }
-
-
 }
