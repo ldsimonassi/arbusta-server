@@ -1,0 +1,8 @@
+<Request>
+    <HITId>?</HITId>
+    <SortDirection>?</SortDirection>
+    <SortProperty>?</SortProperty>
+    <PageNumber>?</PageNumber>
+    <PageSize>?</PageSize>
+    <AssignmentStatus>?</AssignmentStatus>
+</Request>

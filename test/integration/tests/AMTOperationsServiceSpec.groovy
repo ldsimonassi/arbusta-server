@@ -42,6 +42,55 @@ class AMTOperationsServiceSpec extends Specification {
                 email: "paul@beatles.com"
         )
 
+        workers.ford = new Worker(
+                firstName: "Harrison",
+                lastName: "Ford",
+                email: "harrison@movies.com"
+        )
+
+        workers.jolie = new Worker(
+                firstName: "Angelina",
+                lastName: "Jolie",
+                email: "jolie@movies.com"
+        )
+
+        workers.megan = new Worker(
+                firstName: "Megan",
+                lastName: "Fox",
+                email: "megan@movies.com"
+        )
+
+        workers.leonardo = new Worker(
+                firstName: "Leonardo",
+                lastName: "Di Caprio",
+                email: "leo@movies.com"
+        )
+
+        workers.kate = new Worker(
+                firstName: "Kate",
+                lastName: "Winslet",
+                email: "kate@movies.com"
+        )
+
+        workers.albert = new Worker(
+                firstName: "Albert",
+                lastName: "Einstein",
+                email: "albert@billiant.com"
+        )
+
+        workers.pasteur = new Worker(
+                firstName: "Louis",
+                lastName: "Pasteur",
+                email: "louis@billiant.com"
+        )
+
+        workers.milton = new Worker(
+                firstName: "Milton",
+                lastName: "Friedman",
+                email: "milton@billiant.com"
+        )
+
+
         qualificationTypes["english"] =
                 new QualificationType(
                         creationTime: new Timestamp(System.currentTimeMillis()),
@@ -680,4 +729,58 @@ class AMTOperationsServiceSpec extends Specification {
             response.HIT.HITId == hit.id.toString()
             response.Assignment.AssignmentId == assignment.id.toString()
     }
+
+    @Unroll("validate pages calculation pageSize:#pageSize totalCount:#totalCount must have #desiredPages pages")
+    def "validate pages calculation"() {
+        when:
+            def totalPages = AMTOperationsService.calculateTotalPages(pageSize, totalCount)
+        then:
+           totalPages == desiredPages
+        where:
+            pageSize | totalCount | desiredPages
+            10       | 100        | 10
+            1        | 100        | 100
+            3        | 0          | 0
+            3        | 5          | 2
+    }
+
+
+    @Unroll("get all the assignments for a given hit with status #status page_to_get #page_to_gete")
+    def "get assignments for a given git"() {
+        setup:
+            def hit = createDummyHitWOTypeId()
+            int i = 0
+
+            // Generate dataset
+            for (worker in workers) {
+                def a = createDummyAssignment(worker.value, hit)
+                if([0..4].contains(i)) a.status = "Submitted"
+                if([5..8].contains(i)) a.status = "Approved"
+                if([9..10].contains(i)) a.status = "Rejected"
+                i ++;
+                if(!a.save()) throw new ValidationException("Error saving $a", a.errors)
+            }
+
+            // Generate request
+            def request = loadRequest("GetAssignmentsForHIT")
+            request.HITId = hit.id.toString()
+            request.SortDirection = sort_direction
+            request.SortProperty = sort_property
+            request.PageNumber = page_to_get.toString()
+            request.PageSize = page_size.toString()
+            request.AssignmentStatus = status
+        when:
+            def response = AMTOperationsService.GetAssignmentsForHIT(request)
+            println "response: $response"
+        then:
+            response != null
+
+        where:
+            status      | results | num_pages   | page_size | page_to_get | sort_property     | sort_direction
+            "Submitted" | 5       | 3           | 2         | 2           | "AcceptTime"      | "Ascending"
+            "Approved"  | 4       | 2           | 2         | 2           | "SubmitTime"      | "Descending"
+            "Rejected"  | 2       | 1           | 2         | 2           | null              | null
+            null        | 11      | 6           | 2         | 1           | "AssignmentStatus"| "Descending"
+    }
+
 }

@@ -1,5 +1,5 @@
 <Request>
-    <MaxAssignments>1</MaxAssignments>
+    <MaxAssignments>30</MaxAssignments>
     <AutoApprovalDelayInSeconds>1296000</AutoApprovalDelayInSeconds>
     <LifetimeInSeconds>259200</LifetimeInSeconds>
     <AssignmentDurationInSeconds>3600</AssignmentDurationInSeconds>

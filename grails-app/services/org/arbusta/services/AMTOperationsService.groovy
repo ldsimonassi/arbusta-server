@@ -1,6 +1,6 @@
 package org.arbusta.services
 
-import org.apache.catalina.connector.Response
+import grails.gorm.DetachedCriteria
 import org.arbusta.domain.Assignment;
 import org.arbusta.domain.Hit
 import org.arbusta.domain.QualificationAssignment
@@ -446,5 +446,90 @@ class AMTOperationsService {
         response.Answer = assignment.answer
         response.RequesterFeedback = assignment.requesterFeedback
         return response
+    }
+
+
+    def validateValues(propertyName, value, possibleValues) {
+        if(value) {
+            if(!possibleValues.contains(value))
+                throw new IllegalArgumentException("Invalid value $value for property $propertyName")
+        }
+    }
+
+
+
+    def calculateTotalPages(pageSize, totalCount) {
+        pageSize = new BigDecimal(pageSize)
+        totalCount = new BigDecimal(totalCount)
+
+        def ret = totalCount.divideAndRemainder(pageSize)
+        def totalPages = ret[0]
+
+        if (ret[1] > 0)
+            totalPages++
+
+        totalPages
+    }
+
+
+
+    def GetAssignmentsForHIT(request) {
+        def response =  [:]
+
+        long hitId = Long.parseLong(request.HITId)
+        def theHit = Hit.findById(hitId)
+
+        if(!theHit)
+            throw new IllegalArgumentException("The HITId  $request.HITId was not found in this database")
+
+        // Validate input parameters
+        validateValues("AssignmentStatus", request.AssignmentStatus, ["Submitted", "Approved", "Rejected"])
+        validateValues("SortProperty", request.SortProperty, ["AcceptTime" ,"SubmitTime" , "AssignmentStatus"])
+        if(!request.SortDirection) request.SortDirection = "Ascending"
+        validateValues("SortDirection", request.SortDirection, ["Ascending", "Descending"])
+        def direction = request.SortDirection == "Ascending"? "asc" : "desc"
+
+        int pageSize = request.PageSize?Integer.parseInt(request.PageSize):10
+        if(pageSize>100 || pageSize<1) throw new IllegalArgumentException("PageSize values should be between 1 and 100, current value is $pageSize")
+        int pageNumber = request.PageNumber? Integer.parseInt(request.PageNumber) : 1
+        if(pageNumber<1) throw new IllegalArgumentException("PageSize cannot be negative.")
+
+        def assignments = new DetachedCriteria(Assignment).build {
+            eq 'hit', theHit
+            if(request.AssignmentStatus)
+                eq 'status', request.AssignmentStatus
+
+            if(request.SortProperty == "AcceptTime" ){
+                order('acceptTime', direction)
+            }
+            else if(request.SortProperty == "SubmitTime"){
+                order('submitTime', direction)
+            }
+            else if(request.SortProperty == "AssignmentStatus"){
+                order('status', direction)
+            }
+        }
+
+        def totalCount = assignments.count()
+        def totalPages = calculateTotalPages(pageSize, totalCount)
+
+        if(pageNumber > totalPages)
+            throw new IllegalArgumentException("pageNumber: $pageNumber cannot be greater than totalPages for given query: $totalPages")
+
+        response.PageSize = pageSize.toString()
+        response.PageNumber = pageNumber.toString()
+        response.TotalNumResults = totalCount
+
+
+        def offset = pageNumber * pageSize
+        def returnedRegs = Math.min(pageSize, totalCount-offset)
+        response.NumResults = returnedRegs
+        response.Assignment = []
+
+        assignments.list(max: pageSize, offset: offset).each { assignment ->
+            response.Assignment.add(buildAssignmentStructure(assignment))
+        }
+        //response.NumResults
+        response
     }
 }
