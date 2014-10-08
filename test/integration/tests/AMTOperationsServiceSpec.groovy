@@ -155,7 +155,7 @@ class AMTOperationsServiceSpec extends Specification {
         [workers, qualificationTypes].each { toSave ->
             toSave.keySet().each { key ->
                 println "#### Saving \"${key}\"..."
-                if (!toSave[key].save())
+                if (!toSave[key].save(flush:true))
                     throw new ValidationException("Unable to save $key", toSave[key].errors)
                 else
                     println "Ok!"
@@ -181,7 +181,7 @@ class AMTOperationsServiceSpec extends Specification {
 				answer: null,
 				requesterFeedback: null)
 		
-		if(!assignment.save())
+		if(!assignment.save(flush:true))
 			throw new ValidationException("Error while trying to save assignment", assignment.errors)
 
 		return assignment
@@ -189,7 +189,7 @@ class AMTOperationsServiceSpec extends Specification {
 	
     def createDummyQualificationRequest(worker, qualificationType) {
         def qr = new QualificationRequest(worker:worker, qualificationType: qualificationType, test: "The test", answer: "The answer", submitTime: new java.sql.Timestamp(System.currentTimeMillis()), assignment: null)
-        if(!qr.save()) throw new ValidationException("Unable to create a dummy Qualification Request", qr.errors)
+        if(!qr.save(flush:true)) throw new ValidationException("Unable to create a dummy Qualification Request", qr.errors)
         return qr
     }
 
@@ -745,20 +745,23 @@ class AMTOperationsServiceSpec extends Specification {
     }
 
 
-    @Unroll("get all the assignments for a given hit with status #status page_to_get #page_to_gete")
+    @Unroll("get all the assignments for a given hit with status #status page_to_get #page_to_get")
     def "get assignments for a given git"() {
         setup:
+
+            println "Creating dataset"
             def hit = createDummyHitWOTypeId()
             int i = 0
 
+            println("hit: $hit.id")
             // Generate dataset
             for (worker in workers) {
                 def a = createDummyAssignment(worker.value, hit)
-                if([0..4].contains(i)) a.status = "Submitted"
-                if([5..8].contains(i)) a.status = "Approved"
-                if([9..10].contains(i)) a.status = "Rejected"
+                if((0..4).contains(i)) a.status = "Submitted"
+                if((5..8).contains(i)) a.status = "Approved"
+                if((9..10).contains(i)) a.status = "Rejected"
                 i ++;
-                if(!a.save()) throw new ValidationException("Error saving $a", a.errors)
+                if(!a.save(flush:true)) throw new ValidationException("Error saving $a", a.errors)
             }
 
             // Generate request
@@ -771,15 +774,19 @@ class AMTOperationsServiceSpec extends Specification {
             request.AssignmentStatus = status
         when:
             def response = AMTOperationsService.GetAssignmentsForHIT(request)
-            println "response: $response"
+            println "response: ${AMTOperationsService.beautyfy(response)}"
         then:
             response != null
-
+            //TODO assert hit id of each assignment
+            //TODO assert page number
+            //TODO assert total results
+            //TODO assert orders
+            //TODO Assert Assignment quantity
         where:
             status      | results | num_pages   | page_size | page_to_get | sort_property     | sort_direction
             "Submitted" | 5       | 3           | 2         | 2           | "AcceptTime"      | "Ascending"
             "Approved"  | 4       | 2           | 2         | 2           | "SubmitTime"      | "Descending"
-            "Rejected"  | 2       | 1           | 2         | 2           | null              | null
+            "Rejected"  | 2       | 1           | 2         | 1           | null              | null
             null        | 11      | 6           | 2         | 1           | "AssignmentStatus"| "Descending"
     }
 

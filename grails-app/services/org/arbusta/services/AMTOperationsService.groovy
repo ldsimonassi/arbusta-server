@@ -397,7 +397,7 @@ class AMTOperationsService {
         if(!assignment) throw new IllegalArgumentException("The assignment ${assignmentId} was not found in the db req: $request")
         assignment.requesterFeedback = request.RequesterFeedback
         assignment.status = "Approved"
-        if(!assignment.save()) throw new ValidationException("Error while saving assignment $assignmentId for request: $request", assignment.errors)
+        if(!assignment.save(flush:true)) throw new ValidationException("Error while saving assignment $assignmentId for request: $request", assignment.errors)
         return null
     }
 
@@ -407,7 +407,7 @@ class AMTOperationsService {
         if(!assignment) throw new IllegalArgumentException("The assignment ${assignmentId} was not found in the db req: $request")
         assignment.requesterFeedback = request.RequesterFeedback
         assignment.status = "Rejected"
-        if(!assignment.save()) throw new ValidationException("Error while saving assignment $assignmentId for request: $request", assignment.errors)
+        if(!assignment.save(flush:true)) throw new ValidationException("Error while saving assignment $assignmentId for request: $request", assignment.errors)
         return null
     }
 
@@ -418,7 +418,7 @@ class AMTOperationsService {
         if(assignment.status != "Rejected") throw new IllegalStateException("The assignment status is $assignment.status and it should be Rejected. Request data: $request")
         assignment.requesterFeedback = request.RequesterFeedback
         assignment.status = "Approved"
-        if(!assignment.save()) throw new ValidationException("Error while saving assignment $assignmentId for request: $request", assignment.errors)
+        if(!assignment.save(flush:true)) throw new ValidationException("Error while saving assignment $assignmentId for request: $request", assignment.errors)
         return null
     }
 
@@ -484,7 +484,10 @@ class AMTOperationsService {
 
         // Validate input parameters
         validateValues("AssignmentStatus", request.AssignmentStatus, ["Submitted", "Approved", "Rejected"])
+
+        if(!request.SortProperty) request.SortProperty = "SubmitTime"
         validateValues("SortProperty", request.SortProperty, ["AcceptTime" ,"SubmitTime" , "AssignmentStatus"])
+
         if(!request.SortDirection) request.SortDirection = "Ascending"
         validateValues("SortDirection", request.SortDirection, ["Ascending", "Descending"])
         def direction = request.SortDirection == "Ascending"? "asc" : "desc"
@@ -494,42 +497,69 @@ class AMTOperationsService {
         int pageNumber = request.PageNumber? Integer.parseInt(request.PageNumber) : 1
         if(pageNumber<1) throw new IllegalArgumentException("PageSize cannot be negative.")
 
-        def assignments = new DetachedCriteria(Assignment).build {
+        DetachedCriteria assignments = new DetachedCriteria(Assignment).build {
             eq 'hit', theHit
             if(request.AssignmentStatus)
                 eq 'status', request.AssignmentStatus
 
-            if(request.SortProperty == "AcceptTime" ){
-                order('acceptTime', direction)
-            }
-            else if(request.SortProperty == "SubmitTime"){
-                order('submitTime', direction)
-            }
-            else if(request.SortProperty == "AssignmentStatus"){
-                order('status', direction)
-            }
         }
 
         def totalCount = assignments.count()
         def totalPages = calculateTotalPages(pageSize, totalCount)
 
         if(pageNumber > totalPages)
-            throw new IllegalArgumentException("pageNumber: $pageNumber cannot be greater than totalPages for given query: $totalPages")
+            throw new IllegalArgumentException("pageNumber: $pageNumber cannot be greater than totalPages[$totalPages] totalCount:[$totalCount] criteria:${assignments.toString()}for given query request: ${beautyfy(request)}")
 
         response.PageSize = pageSize.toString()
         response.PageNumber = pageNumber.toString()
         response.TotalNumResults = totalCount
 
 
-        def offset = pageNumber * pageSize
+        def offset = (pageNumber-1) * pageSize
         def returnedRegs = Math.min(pageSize, totalCount-offset)
         response.NumResults = returnedRegs
         response.Assignment = []
 
-        assignments.list(max: pageSize, offset: offset).each { assignment ->
+        assignments.list(max: pageSize, offset: offset) {
+            if (request.SortProperty == "AcceptTime") {
+                order('acceptTime', direction)
+            } else if (request.SortProperty == "SubmitTime") {
+                order('submitTime', direction)
+            } else if (request.SortProperty == "AssignmentStatus") {
+                order('status', direction)
+            }
+        }.each { assignment ->
             response.Assignment.add(buildAssignmentStructure(assignment))
         }
-        //response.NumResults
         response
+    }
+
+
+    def beautyfy(obj) {
+        _beautify(null, obj, -1)
+    }
+
+    def _beautify(key, object, level) {
+        def spaces = ""
+        level.times {spaces+="\t"}
+
+        def ret = ""
+        if(key)
+            ret+= "\n${spaces}${key}:"
+        if(object instanceof ArrayList) {
+            ArrayList list = (ArrayList) object
+            list.eachWithIndex { element, index ->
+                ret+= _beautify("[$index]", element, level+1)
+            }
+        } else if(object instanceof LinkedHashMap) {
+            LinkedHashMap map = (LinkedHashMap)object
+            for(e in map) {
+                ret+= _beautify(e.key.toString(), e.value, level+1)
+            }
+
+        } else {
+            ret+= object.toString()
+        }
+        ret
     }
 }
