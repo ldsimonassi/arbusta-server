@@ -14,12 +14,10 @@ ENV JAVA_HOME /apps/boundle/jdk
 ENV GRAILS_HOME /apps/boundle/grails
 ENV PATH $PATH:/$JAVA_HOME/bin:$GRAILS_HOME/bin
 
-ADD ./ /src
-
-WORKDIR /src
-
+RUN grails create-app dummy-app
+WORKDIR /apps/dummy-app
 RUN grails test-app
-
-EXPOSE 80
-
-CMD ["/bin/bash "]
+RUN grails war
+RUN grails clean
+WORKDIR /apps
+RUN rm -rf dummy-app
