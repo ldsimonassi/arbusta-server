@@ -1,13 +1,3 @@
-publish:
-    s3:
-        acl: public-read
-        region: Oregon
-        bucket: dario-deploys2
-        access_key: AKIAJIWZ5URG3S7D54VQ
-        secret_key: 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
-        source: /the_file.txt
-        target: latest/
-
 deploy:
     bash:
         script:
