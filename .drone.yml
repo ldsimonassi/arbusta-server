@@ -1,0 +1,4 @@
+deploy:
+    bash:
+        script:
+          - ./bin/deploy_to_s3.sh
