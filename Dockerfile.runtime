@@ -1,0 +1,10 @@
+FROM ldsimonassi/production-tomcat:0.2
+
+ADD ./ /deploy/
+
+RUN rm -rf /$CATALINA_HOME/webapps/*
+RUN cp /deploy/* $CATALINA_HOME/webapps
+
+ENV JAVA_OPTS "-Xms512m -Xmx512m"
+
+CMD $CATALINA_HOME/bin/startup.sh
