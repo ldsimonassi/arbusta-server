@@ -1,7 +1,4 @@
-FROM ldsimonassi/grails-test:0.2
+FROM ldsimonassi/grails:onbuild
 MAINTAINER Simonassi Luis Dario version: 0.1
 
-ADD ./ /src
-WORKDIR /src
-RUN grails test-app
-
+CMD grails test-app

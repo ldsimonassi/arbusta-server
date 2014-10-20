@@ -48,7 +48,7 @@ class AMTOperationsService {
 
             response = [:]
 
-            response.HITId = hit.id.toString()
+            response.HITId =  hit.id.toString()
             response.HITTypeId = hit.hitType.id.toString()
             response.CreationTime = hit.creationTime.toString()
             response.Title = hit.hitType.title
