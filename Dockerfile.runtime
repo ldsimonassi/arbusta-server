@@ -1,4 +1,4 @@
-FROM ldsimonassi/production-tomcat:0.2
+FROM mlarq/production-tomcat:0.1
 
 ADD ./ /deploy/
 
